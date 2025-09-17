@@ -1,6 +1,7 @@
-import type { Express } from "express";
+import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import bcrypt from 'bcryptjs';
 import { 
   insertAppointmentSchema, 
   insertContactMessageSchema,
@@ -8,7 +9,77 @@ import {
   insertPortfolioItemSchema 
 } from "@shared/schema";
 
+// Extend Express Request type to include user
+declare module 'express-serve-static-core' {
+  interface Request {
+    user?: any;
+  }
+}
+
+// Authentication middleware
+function isAuthenticated(req: Request, res: Response, next: NextFunction) {
+  if (req.session && (req.session as any).adminId) {
+    next();
+  } else {
+    res.status(401).json({ error: "Authentication required" });
+  }
+}
+
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Admin authentication routes
+  app.post("/api/admin/login", async (req, res) => {
+    try {
+      const { username, password } = req.body;
+      
+      if (!username || !password) {
+        return res.status(400).json({ error: "Username and password required" });
+      }
+      
+      const admin = await storage.getAdminByUsername(username);
+      if (!admin) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
+      
+      const isValid = await bcrypt.compare(password, admin.password);
+      if (!isValid) {
+        return res.status(401).json({ error: "Invalid credentials" });
+      }
+      
+      // Set session
+      (req.session as any).adminId = admin.id;
+      res.json({ 
+        message: "Login successful",
+        admin: { id: admin.id, username: admin.username, email: admin.email }
+      });
+    } catch (error) {
+      console.error("Login error:", error);
+      res.status(500).json({ error: "Login failed" });
+    }
+  });
+  
+  app.post("/api/admin/logout", (req, res) => {
+    req.session.destroy((err) => {
+      if (err) {
+        return res.status(500).json({ error: "Could not log out" });
+      }
+      res.json({ message: "Logout successful" });
+    });
+  });
+  
+  app.get("/api/admin/check", isAuthenticated, async (req, res) => {
+    try {
+      const admin = await storage.getAdminById((req.session as any).adminId);
+      if (!admin) {
+        return res.status(401).json({ error: "Session invalid" });
+      }
+      res.json({ 
+        authenticated: true,
+        admin: { id: admin.id, username: admin.username, email: admin.email }
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to check authentication" });
+    }
+  });
   // Services routes
   app.get("/api/services", async (req, res) => {
     try {
@@ -180,6 +251,75 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching contact messages:", error);
       res.status(500).json({ error: "Failed to fetch messages" });
+    }
+  });
+  
+  // Admin-protected routes for managing services
+  app.post("/api/admin/services", isAuthenticated, async (req, res) => {
+    try {
+      const validatedData = insertServiceSchema.parse(req.body);
+      const service = await storage.createService(validatedData);
+      res.status(201).json(service);
+    } catch (error) {
+      console.error("Error creating service:", error);
+      if (error && typeof error === 'object' && 'name' in error && error.name === 'ZodError') {
+        return res.status(400).json({ error: "Invalid service data", details: (error as any).errors });
+      }
+      res.status(500).json({ error: "Failed to create service" });
+    }
+  });
+  
+  app.patch("/api/admin/services/:id", isAuthenticated, async (req, res) => {
+    try {
+      const service = await storage.updateService(req.params.id, req.body);
+      if (!service) {
+        return res.status(404).json({ error: "Service not found" });
+      }
+      res.json(service);
+    } catch (error) {
+      console.error("Error updating service:", error);
+      res.status(500).json({ error: "Failed to update service" });
+    }
+  });
+  
+  // Admin-protected routes for managing portfolio
+  app.patch("/api/admin/portfolio/:id", isAuthenticated, async (req, res) => {
+    try {
+      const item = await storage.updatePortfolioItem(req.params.id, req.body);
+      if (!item) {
+        return res.status(404).json({ error: "Portfolio item not found" });
+      }
+      res.json(item);
+    } catch (error) {
+      console.error("Error updating portfolio item:", error);
+      res.status(500).json({ error: "Failed to update portfolio item" });
+    }
+  });
+  
+  app.delete("/api/admin/portfolio/:id", isAuthenticated, async (req, res) => {
+    try {
+      const deleted = await storage.deletePortfolioItem(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Portfolio item not found" });
+      }
+      res.json({ message: "Portfolio item deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting portfolio item:", error);
+      res.status(500).json({ error: "Failed to delete portfolio item" });
+    }
+  });
+  
+  // Admin-protected route to update contact message status
+  app.patch("/api/admin/contact/:id", isAuthenticated, async (req, res) => {
+    try {
+      const message = await storage.updateContactMessage(req.params.id, { status: req.body.status });
+      if (!message) {
+        return res.status(404).json({ error: "Message not found" });
+      }
+      res.json(message);
+    } catch (error) {
+      console.error("Error updating message status:", error);
+      res.status(500).json({ error: "Failed to update message status" });
     }
   });
 

@@ -6,6 +6,7 @@ import {
   appointments,
   portfolioItems,
   contactMessages,
+  adminUsers,
   type Service, 
   type InsertService,
   type Appointment, 
@@ -13,9 +14,12 @@ import {
   type PortfolioItem, 
   type InsertPortfolioItem,
   type ContactMessage, 
-  type InsertContactMessage 
+  type InsertContactMessage,
+  type AdminUser,
+  type InsertAdminUser
 } from "@shared/schema";
 import { IStorage } from './storage';
+import bcrypt from 'bcryptjs';
 
 const { Pool } = pg;
 
@@ -170,9 +174,29 @@ export class DrizzleStorage implements IStorage {
       .returning();
     return result[0];
   }
+  
+  // Admin Users
+  async getAdminByUsername(username: string): Promise<AdminUser | undefined> {
+    const result = await db.select().from(adminUsers).where(eq(adminUsers.username, username)).limit(1);
+    return result[0];
+  }
+  
+  async getAdminById(id: string): Promise<AdminUser | undefined> {
+    const result = await db.select().from(adminUsers).where(eq(adminUsers.id, id)).limit(1);
+    return result[0];
+  }
+  
+  async createAdmin(admin: InsertAdminUser): Promise<AdminUser> {
+    const hashedPassword = await bcrypt.hash(admin.password, 10);
+    const result = await db.insert(adminUsers).values({
+      ...admin,
+      password: hashedPassword
+    }).returning();
+    return result[0];
+  }
 }
 
-// Initialize database with default services if empty
+// Initialize database with default services and admin if empty
 async function initializeDatabase() {
   const existingServices = await db.select().from(services).limit(1);
   
@@ -224,6 +248,18 @@ async function initializeDatabase() {
       await db.insert(services).values(service);
     }
     console.log('Database initialized with default services');
+  }
+  
+  // Initialize admin user if none exists
+  const existingAdmin = await db.select().from(adminUsers).limit(1);
+  if (existingAdmin.length === 0) {
+    const hashedPassword = await bcrypt.hash('admin123', 10);
+    await db.insert(adminUsers).values({
+      username: 'admin',
+      email: 'admin@beautyportfolio.com',
+      password: hashedPassword
+    });
+    console.log('Default admin user created - Username: admin, Password: admin123');
   }
 }
 

@@ -6,7 +6,9 @@ import {
   type PortfolioItem, 
   type InsertPortfolioItem,
   type ContactMessage, 
-  type InsertContactMessage 
+  type InsertContactMessage,
+  type AdminUser,
+  type InsertAdminUser
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -37,6 +39,11 @@ export interface IStorage {
   getContactMessage(id: string): Promise<ContactMessage | undefined>;
   createContactMessage(message: InsertContactMessage): Promise<ContactMessage>;
   updateContactMessage(id: string, message: Partial<InsertContactMessage>): Promise<ContactMessage | undefined>;
+  
+  // Admin Users
+  getAdminByUsername(username: string): Promise<AdminUser | undefined>;
+  getAdminById(id: string): Promise<AdminUser | undefined>;
+  createAdmin(admin: InsertAdminUser): Promise<AdminUser>;
 }
 
 export class MemStorage implements IStorage {
@@ -44,12 +51,14 @@ export class MemStorage implements IStorage {
   private appointments: Map<string, Appointment>;
   private portfolioItems: Map<string, PortfolioItem>;
   private contactMessages: Map<string, ContactMessage>;
+  private adminUsers: Map<string, AdminUser>;
 
   constructor() {
     this.services = new Map();
     this.appointments = new Map();
     this.portfolioItems = new Map();
     this.contactMessages = new Map();
+    this.adminUsers = new Map();
     
     // Initialize with default services
     this.initializeDefaultData();
@@ -247,6 +256,26 @@ export class MemStorage implements IStorage {
     const updatedMessage = { ...message, ...messageUpdate };
     this.contactMessages.set(id, updatedMessage);
     return updatedMessage;
+  }
+  
+  // Admin Users
+  async getAdminByUsername(username: string): Promise<AdminUser | undefined> {
+    return Array.from(this.adminUsers.values()).find(admin => admin.username === username);
+  }
+  
+  async getAdminById(id: string): Promise<AdminUser | undefined> {
+    return this.adminUsers.get(id);
+  }
+  
+  async createAdmin(insertAdmin: InsertAdminUser): Promise<AdminUser> {
+    const id = randomUUID();
+    const admin: AdminUser = {
+      ...insertAdmin,
+      id,
+      createdAt: new Date()
+    };
+    this.adminUsers.set(id, admin);
+    return admin;
   }
 }
 
