@@ -1,37 +1,252 @@
-import { type User, type InsertUser } from "@shared/schema";
+import { 
+  type Service, 
+  type InsertService,
+  type Appointment, 
+  type InsertAppointment,
+  type PortfolioItem, 
+  type InsertPortfolioItem,
+  type ContactMessage, 
+  type InsertContactMessage 
+} from "@shared/schema";
 import { randomUUID } from "crypto";
 
-// modify the interface with any CRUD methods
-// you might need
-
 export interface IStorage {
-  getUser(id: string): Promise<User | undefined>;
-  getUserByUsername(username: string): Promise<User | undefined>;
-  createUser(user: InsertUser): Promise<User>;
+  // Services
+  getServices(): Promise<Service[]>;
+  getService(id: string): Promise<Service | undefined>;
+  createService(service: InsertService): Promise<Service>;
+  updateService(id: string, service: Partial<InsertService>): Promise<Service | undefined>;
+  
+  // Appointments
+  getAppointments(): Promise<Appointment[]>;
+  getAppointment(id: string): Promise<Appointment | undefined>;
+  getAppointmentsByDate(date: string): Promise<Appointment[]>;
+  createAppointment(appointment: InsertAppointment): Promise<Appointment>;
+  updateAppointment(id: string, appointment: Partial<InsertAppointment>): Promise<Appointment | undefined>;
+  deleteAppointment(id: string): Promise<boolean>;
+  
+  // Portfolio
+  getPortfolioItems(): Promise<PortfolioItem[]>;
+  getPortfolioItem(id: string): Promise<PortfolioItem | undefined>;
+  createPortfolioItem(item: InsertPortfolioItem): Promise<PortfolioItem>;
+  updatePortfolioItem(id: string, item: Partial<InsertPortfolioItem>): Promise<PortfolioItem | undefined>;
+  deletePortfolioItem(id: string): Promise<boolean>;
+  
+  // Contact Messages
+  getContactMessages(): Promise<ContactMessage[]>;
+  getContactMessage(id: string): Promise<ContactMessage | undefined>;
+  createContactMessage(message: InsertContactMessage): Promise<ContactMessage>;
+  updateContactMessage(id: string, message: Partial<InsertContactMessage>): Promise<ContactMessage | undefined>;
 }
 
 export class MemStorage implements IStorage {
-  private users: Map<string, User>;
+  private services: Map<string, Service>;
+  private appointments: Map<string, Appointment>;
+  private portfolioItems: Map<string, PortfolioItem>;
+  private contactMessages: Map<string, ContactMessage>;
 
   constructor() {
-    this.users = new Map();
+    this.services = new Map();
+    this.appointments = new Map();
+    this.portfolioItems = new Map();
+    this.contactMessages = new Map();
+    
+    // Initialize with default services
+    this.initializeDefaultData();
   }
 
-  async getUser(id: string): Promise<User | undefined> {
-    return this.users.get(id);
+  private async initializeDefaultData() {
+    const defaultServices: InsertService[] = [
+      {
+        name: 'Bridal Makeup',
+        description: 'Complete bridal makeup service including consultation, trial, and wedding day application.',
+        duration: 240, // 4 hours
+        price: '425.00',
+        category: 'Bridal',
+        active: true
+      },
+      {
+        name: 'Special Event Makeup',
+        description: 'Professional makeup for parties, galas, photoshoots, and other special occasions.',
+        duration: 120, // 2 hours
+        price: '200.00',
+        category: 'Event',
+        active: true
+      },
+      {
+        name: 'Everyday Glam',
+        description: 'Natural, everyday makeup that enhances your features for work, dates, or daily wear.',
+        duration: 60, // 1 hour
+        price: '100.00',
+        category: 'Everyday',
+        active: true
+      },
+      {
+        name: 'Makeup Lesson',
+        description: 'Learn professional makeup techniques with personalized one-on-one instruction.',
+        duration: 120, // 2 hours
+        price: '200.00',
+        category: 'Lesson',
+        active: true
+      },
+      {
+        name: 'Group Session',
+        description: 'Perfect for bridal parties, bachelorette parties, or girls\' nights out.',
+        duration: 180, // 3 hours
+        price: '125.00',
+        category: 'Group',
+        active: true
+      }
+    ];
+
+    for (const service of defaultServices) {
+      await this.createService(service);
+    }
   }
 
-  async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
+  // Services
+  async getServices(): Promise<Service[]> {
+    return Array.from(this.services.values()).filter(s => s.active);
+  }
+
+  async getService(id: string): Promise<Service | undefined> {
+    return this.services.get(id);
+  }
+
+  async createService(insertService: InsertService): Promise<Service> {
+    const id = randomUUID();
+    const service: Service = { 
+      ...insertService, 
+      id, 
+      active: insertService.active ?? true,
+      createdAt: new Date()
+    };
+    this.services.set(id, service);
+    return service;
+  }
+
+  async updateService(id: string, serviceUpdate: Partial<InsertService>): Promise<Service | undefined> {
+    const service = this.services.get(id);
+    if (!service) return undefined;
+    
+    const updatedService = { ...service, ...serviceUpdate };
+    this.services.set(id, updatedService);
+    return updatedService;
+  }
+
+  // Appointments
+  async getAppointments(): Promise<Appointment[]> {
+    return Array.from(this.appointments.values()).sort(
+      (a, b) => a.appointmentDate.getTime() - b.appointmentDate.getTime()
     );
   }
 
-  async createUser(insertUser: InsertUser): Promise<User> {
+  async getAppointment(id: string): Promise<Appointment | undefined> {
+    return this.appointments.get(id);
+  }
+
+  async getAppointmentsByDate(date: string): Promise<Appointment[]> {
+    const targetDate = new Date(date);
+    return Array.from(this.appointments.values()).filter(apt => {
+      const aptDate = new Date(apt.appointmentDate);
+      return aptDate.toDateString() === targetDate.toDateString() && apt.status === 'confirmed';
+    });
+  }
+
+  async createAppointment(insertAppointment: InsertAppointment): Promise<Appointment> {
     const id = randomUUID();
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
-    return user;
+    const appointment: Appointment = {
+      ...insertAppointment,
+      id,
+      notes: insertAppointment.notes ?? null,
+      status: 'confirmed',
+      createdAt: new Date()
+    };
+    this.appointments.set(id, appointment);
+    return appointment;
+  }
+
+  async updateAppointment(id: string, appointmentUpdate: Partial<InsertAppointment>): Promise<Appointment | undefined> {
+    const appointment = this.appointments.get(id);
+    if (!appointment) return undefined;
+    
+    const updatedAppointment = { ...appointment, ...appointmentUpdate };
+    this.appointments.set(id, updatedAppointment);
+    return updatedAppointment;
+  }
+
+  async deleteAppointment(id: string): Promise<boolean> {
+    return this.appointments.delete(id);
+  }
+
+  // Portfolio
+  async getPortfolioItems(): Promise<PortfolioItem[]> {
+    return Array.from(this.portfolioItems.values()).sort(
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+    );
+  }
+
+  async getPortfolioItem(id: string): Promise<PortfolioItem | undefined> {
+    return this.portfolioItems.get(id);
+  }
+
+  async createPortfolioItem(insertItem: InsertPortfolioItem): Promise<PortfolioItem> {
+    const id = randomUUID();
+    const item: PortfolioItem = {
+      ...insertItem,
+      id,
+      tags: insertItem.tags ?? [],
+      featured: insertItem.featured ?? false,
+      createdAt: new Date()
+    };
+    this.portfolioItems.set(id, item);
+    return item;
+  }
+
+  async updatePortfolioItem(id: string, itemUpdate: Partial<InsertPortfolioItem>): Promise<PortfolioItem | undefined> {
+    const item = this.portfolioItems.get(id);
+    if (!item) return undefined;
+    
+    const updatedItem = { ...item, ...itemUpdate };
+    this.portfolioItems.set(id, updatedItem);
+    return updatedItem;
+  }
+
+  async deletePortfolioItem(id: string): Promise<boolean> {
+    return this.portfolioItems.delete(id);
+  }
+
+  // Contact Messages
+  async getContactMessages(): Promise<ContactMessage[]> {
+    return Array.from(this.contactMessages.values()).sort(
+      (a, b) => b.createdAt.getTime() - a.createdAt.getTime()
+    );
+  }
+
+  async getContactMessage(id: string): Promise<ContactMessage | undefined> {
+    return this.contactMessages.get(id);
+  }
+
+  async createContactMessage(insertMessage: InsertContactMessage): Promise<ContactMessage> {
+    const id = randomUUID();
+    const message: ContactMessage = {
+      ...insertMessage,
+      id,
+      phone: insertMessage.phone ?? null,
+      status: 'unread',
+      createdAt: new Date()
+    };
+    this.contactMessages.set(id, message);
+    return message;
+  }
+
+  async updateContactMessage(id: string, messageUpdate: Partial<InsertContactMessage>): Promise<ContactMessage | undefined> {
+    const message = this.contactMessages.get(id);
+    if (!message) return undefined;
+    
+    const updatedMessage = { ...message, ...messageUpdate };
+    this.contactMessages.set(id, updatedMessage);
+    return updatedMessage;
   }
 }
 
