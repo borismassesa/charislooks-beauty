@@ -1,6 +1,7 @@
 import { Button } from '@/components/ui/button'
-import { Calendar, Palette, Star } from 'lucide-react'
+import { Calendar, Palette, Star, Scissors } from 'lucide-react'
 import { Link } from 'wouter'
+import TypingAnimation from '@/components/TypingAnimation'
 import salonInteriorImage from '@assets/generated_images/Salon_interior_photo_cb762670.png'
 
 export default function Hero() {
@@ -23,20 +24,34 @@ export default function Hero() {
           <div className="inline-flex items-center space-x-2 bg-black/40 backdrop-blur-md rounded-full px-4 py-2 mb-6 border border-white/10">
             <Star className="h-4 w-4 text-yellow-400 fill-current" />
             <span className="text-sm font-medium text-white">
-              Award-Winning Makeup Artist
+              Award-Winning Hair & Beauty Studio
             </span>
           </div>
 
           {/* Main Heading */}
           <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight drop-shadow-2xl">
             Welcome to CharisLooks
-            <span className="block text-ring"> Professional Beauty Artistry</span>
+            <span className="block text-ring h-20 sm:h-24 lg:h-28 flex items-center justify-center">
+              <TypingAnimation 
+                words={[
+                  'Professional Hair Styling',
+                  'Stunning Makeup Artistry',
+                  'Bridal Beauty Services',
+                  'Hair Color Specialists',
+                  'Complete Transformations'
+                ]}
+                className="text-ring"
+                typingSpeed={80}
+                deletingSpeed={40}
+                pauseTime={2500}
+              />
+            </span>
           </h1>
 
           {/* Subheading */}
           <p className="text-lg sm:text-xl text-white/90 mb-8 max-w-2xl mx-auto leading-relaxed drop-shadow-lg">
-            Specializing in bridal makeup, special events, and everyday glam. 
-            Creating stunning looks that enhance your natural beauty and boost your confidence.
+            Your complete beauty destination for professional hair services and makeup artistry. 
+            From stunning hair transformations to flawless makeup, we create looks that enhance your natural beauty.
           </p>
 
           {/* CTA Buttons */}
@@ -68,16 +83,16 @@ export default function Hero() {
           <div className="mt-12 pt-8 border-t border-white/20">
             <div className="grid grid-cols-3 gap-8 text-center">
               <div>
-                <div className="text-2xl sm:text-3xl font-bold text-white drop-shadow-lg">500+</div>
+                <div className="text-2xl sm:text-3xl font-bold text-white drop-shadow-lg">1000+</div>
                 <div className="text-sm text-white/80">Happy Clients</div>
               </div>
               <div>
-                <div className="text-2xl sm:text-3xl font-bold text-white drop-shadow-lg">5+</div>
+                <div className="text-2xl sm:text-3xl font-bold text-white drop-shadow-lg">8+</div>
                 <div className="text-sm text-white/80">Years Experience</div>
               </div>
               <div>
-                <div className="text-2xl sm:text-3xl font-bold text-white drop-shadow-lg">100+</div>
-                <div className="text-sm text-white/80">Wedding Looks</div>
+                <div className="text-2xl sm:text-3xl font-bold text-white drop-shadow-lg">200+</div>
+                <div className="text-sm text-white/80">Weddings & Events</div>
               </div>
             </div>
           </div>
