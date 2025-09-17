@@ -22,14 +22,14 @@ export default function Hero() {
         <div className="max-w-3xl mx-auto">
           {/* Main Heading */}
           <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight drop-shadow-2xl">
-            Welcome to CharisLooks
+            Transform with CharisLooks
             <span className="block text-ring h-20 sm:h-24 lg:h-28 flex items-center justify-center">
               <TypingAnimation 
                 words={[
                   'Professional Hair Styling',
                   'Stunning Makeup Artistry',
                   'Bridal Beauty Services',
-                  'Hair Color Specialists',
+                  'Hair Cutting & Styling',
                   'Complete Transformations'
                 ]}
                 className="text-ring"
