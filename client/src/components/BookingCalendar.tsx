@@ -210,14 +210,28 @@ export default function BookingCalendar() {
                     onClick={() => setSelectedService(service.id)}
                     data-testid={`service-${service.id}`}
                   >
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="font-medium">{service.name}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          Duration: {Math.floor(service.duration / 60)}h {service.duration % 60 > 0 ? `${service.duration % 60}min` : ''}
-                        </p>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-start">
+                        <div>
+                          <h3 className="font-medium">{service.name}</h3>
+                          <p className="text-sm text-muted-foreground">
+                            Duration: {Math.floor(service.duration / 60)}h {service.duration % 60 > 0 ? `${service.duration % 60}min` : ''}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <Badge variant="outline">${service.price}</Badge>
+                          <p className="text-xs text-yellow-500 mt-1">
+                            Deposit: ${(parseFloat(service.price) * 0.20).toFixed(2)}
+                          </p>
+                        </div>
                       </div>
-                      <Badge variant="outline">${service.price}</Badge>
+                      {selectedService === service.id && (
+                        <div className="pt-2 border-t border-yellow-500/20">
+                          <p className="text-xs text-yellow-500/90">
+                            ⚠️ 20% deposit required to secure your appointment
+                          </p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))
@@ -409,11 +423,27 @@ export default function BookingCalendar() {
                   </span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Price:</span>
+                  <span className="text-muted-foreground">Total Price:</span>
                   <span className="font-medium">
                     ${services.find(s => s.id === selectedService)?.price}
                   </span>
                 </div>
+                <div className="flex justify-between pt-2 border-t">
+                  <span className="text-yellow-500 font-semibold">20% Deposit Due Now:</span>
+                  <span className="text-yellow-500 font-bold">
+                    ${(parseFloat(services.find(s => s.id === selectedService)?.price || '0') * 0.20).toFixed(2)}
+                  </span>
+                </div>
+              </div>
+
+              {/* Deposit Notice */}
+              <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-md p-4 mt-4">
+                <p className="text-sm text-yellow-200 font-medium">
+                  💳 Important: A 20% deposit is required to confirm your booking
+                </p>
+                <p className="text-xs text-yellow-200/80 mt-1">
+                  The remaining balance will be due on the day of your appointment
+                </p>
               </div>
               
               <div className="border-t pt-4 mt-4">
