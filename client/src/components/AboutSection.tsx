@@ -13,26 +13,26 @@ export default function AboutSection() {
           {/* Content */}
           <div>
             <h2 className="font-serif text-3xl lg:text-4xl font-bold mb-6">
-              Meet Your Beauty Artist
+              Meet Your Hair & Beauty Team
             </h2>
             
             <div className="prose prose-lg max-w-none mb-8">
               <p className="text-muted-foreground leading-relaxed mb-4">
-                Hi, I'm Sarah! With over 5 years of experience in the beauty industry, 
-                I've had the privilege of helping hundreds of women feel their most beautiful 
+                Welcome to CharisLooks! With over 8 years of experience in the hair and beauty industry, 
+                our talented team has had the privilege of helping thousands of clients look and feel their most beautiful 
                 and confident selves.
               </p>
               
               <p className="text-muted-foreground leading-relaxed mb-4">
-                My passion for makeup artistry began during my studies at the prestigious 
-                Beauty Institute, where I mastered both classic and contemporary techniques. 
-                I specialize in creating looks that enhance your natural beauty while 
-                ensuring your makeup photographs beautifully and lasts throughout your special day.
+                Our passion for hair and beauty artistry drives us to stay current with the latest trends 
+                and techniques. From precision hair cutting and creative coloring to flawless makeup application, 
+                we specialize in creating looks that enhance your natural beauty while 
+                ensuring everything photographs beautifully and lasts throughout your special day.
               </p>
               
               <p className="text-muted-foreground leading-relaxed">
-                Whether you're preparing for your wedding day, a special event, or simply 
-                want to learn new techniques, I'm here to help you achieve the perfect look 
+                Whether you're preparing for your wedding day, need a stunning new hairstyle, want vibrant color, 
+                or desire flawless makeup for any occasion, our expert team is here to help you achieve the perfect look 
                 that reflects your unique style and personality.
               </p>
             </div>
@@ -43,14 +43,14 @@ export default function AboutSection() {
                 <div className="flex items-center justify-center w-12 h-12 bg-ring/10 rounded-lg mb-3 mx-auto">
                   <Users className="h-6 w-6 text-ring" />
                 </div>
-                <div className="text-2xl font-bold">500+</div>
+                <div className="text-2xl font-bold">1000+</div>
                 <div className="text-sm text-muted-foreground">Happy Clients</div>
               </div>
               <div className="text-center">
                 <div className="flex items-center justify-center w-12 h-12 bg-ring/10 rounded-lg mb-3 mx-auto">
                   <Award className="h-6 w-6 text-ring" />
                 </div>
-                <div className="text-2xl font-bold">5+</div>
+                <div className="text-2xl font-bold">8+</div>
                 <div className="text-sm text-muted-foreground">Years Experience</div>
               </div>
               <div className="text-center">
@@ -64,7 +64,7 @@ export default function AboutSection() {
                 <div className="flex items-center justify-center w-12 h-12 bg-ring/10 rounded-lg mb-3 mx-auto">
                   <Clock className="h-6 w-6 text-ring" />
                 </div>
-                <div className="text-2xl font-bold">100+</div>
+                <div className="text-2xl font-bold">200+</div>
                 <div className="text-sm text-muted-foreground">Weddings</div>
               </div>
             </div>
@@ -73,19 +73,21 @@ export default function AboutSection() {
             <div className="mb-8">
               <h3 className="font-semibold mb-3">Specialties & Certifications</h3>
               <div className="flex flex-wrap gap-2">
-                <Badge variant="outline">Bridal Makeup</Badge>
-                <Badge variant="outline">Editorial Looks</Badge>
-                <Badge variant="outline">Color Theory</Badge>
+                <Badge variant="outline">Bridal Hair & Makeup</Badge>
+                <Badge variant="outline">Color Specialist</Badge>
+                <Badge variant="outline">Balayage Expert</Badge>
+                <Badge variant="outline">Precision Cutting</Badge>
                 <Badge variant="outline">Airbrush Certified</Badge>
-                <Badge variant="outline">Special Effects</Badge>
+                <Badge variant="outline">Extensions & Volume</Badge>
+                <Badge variant="outline">Editorial Styling</Badge>
                 <Badge variant="outline">Photography Makeup</Badge>
               </div>
             </div>
 
             {/* CTA */}
             <Link href="/booking">
-              <Button size="lg" data-testid="button-book-with-sarah">
-                Book with Sarah
+              <Button size="lg" data-testid="button-book-appointment">
+                Book Your Appointment
               </Button>
             </Link>
           </div>
@@ -96,7 +98,7 @@ export default function AboutSection() {
               <CardContent className="p-0">
                 <img
                   src={artistPhoto}
-                  alt="Sarah - Professional Makeup Artist"
+                  alt="CharisLooks Team - Professional Hair & Makeup Artists"
                   className="w-full h-auto object-cover"
                 />
               </CardContent>
@@ -110,7 +112,7 @@ export default function AboutSection() {
                     "Beauty is about enhancing what you have. Let yourself shine through!"
                   </p>
                   <footer className="text-sm font-medium text-ring">
-                    — Sarah, Founder & Lead Artist
+                    — CharisLooks Team
                   </footer>
                 </blockquote>
               </CardContent>

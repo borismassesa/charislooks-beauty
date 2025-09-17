@@ -31,10 +31,10 @@ export default function ServicesSection() {
         {/* Header */}
         <div className="text-center mb-12">
           <h2 className="font-serif text-3xl lg:text-4xl font-bold mb-4">
-            Beauty Services
+            Hair & Beauty Services
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Professional makeup services tailored to your unique style and occasion
+            Professional hair styling and makeup services tailored to your unique style and occasion
           </p>
         </div>
 
@@ -113,7 +113,7 @@ export default function ServicesSection() {
                 Need Something Custom?
               </h3>
               <p className="text-muted-foreground mb-6">
-                Don't see exactly what you're looking for? I offer custom packages 
+                Don't see exactly what you're looking for? We offer custom hair and beauty packages 
                 and can create a personalized service just for you.
               </p>
               <Link href="/contact">
