@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation } from "@tanstack/react-query";
-import { useNavigate } from "wouter";
+import { useLocation } from "wouter";
 import { apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,7 +16,7 @@ interface LoginForm {
 }
 
 export default function AdminLogin() {
-  const [, navigate] = useNavigate();
+  const [, setLocation] = useLocation();
   const { toast } = useToast();
   
   const form = useForm<LoginForm>({
@@ -35,7 +35,7 @@ export default function AdminLogin() {
     },
     onSuccess: () => {
       toast({ title: "Login successful", description: "Redirecting to admin panel..." });
-      navigate("/admin/dashboard");
+      setLocation("/admin/dashboard");
     },
     onError: (error: any) => {
       toast({

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Switch, Route, useLocation, useNavigate } from "wouter";
+import { Switch, Route, useLocation } from "wouter";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { Button } from "@/components/ui/button";
@@ -62,7 +62,7 @@ const menuItems = [
 ];
 
 function AdminSidebar() {
-  const [location, navigate] = useLocation();
+  const [location, setLocation] = useLocation();
   const { toast } = useToast();
   
   const logoutMutation = useMutation({
@@ -73,7 +73,7 @@ function AdminSidebar() {
     },
     onSuccess: () => {
       toast({ title: "Logged out successfully" });
-      navigate("/admin");
+      setLocation("/admin");
     }
   });
 
@@ -124,7 +124,7 @@ function AdminSidebar() {
 }
 
 export default function AdminDashboard() {
-  const [, navigate] = useNavigate();
+  const [, setLocation] = useLocation();
   const { toast } = useToast();
   
   // Check authentication
@@ -140,9 +140,9 @@ export default function AdminDashboard() {
         description: "Please login to access the admin panel",
         variant: "destructive"
       });
-      navigate("/admin");
+      setLocation("/admin");
     }
-  }, [error, navigate, toast]);
+  }, [error, setLocation, toast]);
   
   if (isLoading) {
     return (
