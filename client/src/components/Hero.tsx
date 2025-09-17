@@ -20,14 +20,6 @@ export default function Hero() {
       {/* Content */}
       <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div className="max-w-3xl mx-auto">
-          {/* Badge */}
-          <div className="inline-flex items-center space-x-2 bg-black/40 backdrop-blur-md rounded-full px-4 py-2 mb-6 border border-white/10">
-            <Star className="h-4 w-4 text-yellow-400 fill-current" />
-            <span className="text-sm font-medium text-white">
-              Award-Winning Hair & Beauty Studio
-            </span>
-          </div>
-
           {/* Main Heading */}
           <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight drop-shadow-2xl">
             Welcome to CharisLooks
