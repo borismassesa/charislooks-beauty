@@ -29,8 +29,8 @@ export default function Hero() {
 
           {/* Main Heading */}
           <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight drop-shadow-2xl">
-            Transform Your Beauty with 
-            <span className="block text-ring"> Professional Artistry</span>
+            Welcome to CharisLooks
+            <span className="block text-ring"> Professional Beauty Artistry</span>
           </h1>
 
           {/* Subheading */}

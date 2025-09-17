@@ -312,7 +312,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Admin-protected route to update contact message status
   app.patch("/api/admin/contact/:id", isAuthenticated, async (req, res) => {
     try {
-      const message = await storage.updateContactMessage(req.params.id, { status: req.body.status });
+      const message = await storage.updateContactMessage(req.params.id, req.body);
       if (!message) {
         return res.status(404).json({ error: "Message not found" });
       }

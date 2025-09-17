@@ -22,7 +22,7 @@ export default function Header() {
           {/* Logo */}
           <Link href="/" className="flex items-center space-x-2">
             <Palette className="h-8 w-8 text-ring" />
-            <span className="font-serif text-xl font-bold">Bella Beauty</span>
+            <span className="font-serif text-xl font-bold">CharisLooks</span>
           </Link>
 
           {/* Desktop Navigation */}
