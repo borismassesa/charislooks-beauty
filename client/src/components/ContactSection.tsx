@@ -1,15 +1,61 @@
+import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { MapPin, Phone, Mail, Clock, Instagram, Facebook } from 'lucide-react'
+import { MapPin, Phone, Mail, Clock, Instagram, Facebook, Loader2, CheckCircle } from 'lucide-react'
+import { useMutation } from '@tanstack/react-query'
+import { useToast } from '@/hooks/use-toast'
 
 export default function ContactSection() {
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    subject: '',
+    message: ''
+  })
+  const [isSubmitted, setIsSubmitted] = useState(false)
+  const { toast } = useToast()
+
+  const contactMutation = useMutation({
+    mutationFn: async (data: typeof formData) => {
+      const response = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      })
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to send message')
+      }
+      return response.json()
+    },
+    onSuccess: () => {
+      setIsSubmitted(true)
+      toast({
+        title: "Message Sent!",
+        description: "We'll get back to you within 24 hours.",
+      })
+    },
+    onError: (error: Error) => {
+      toast({
+        variant: "destructive",
+        title: "Failed to Send",
+        description: error.message,
+      })
+    }
+  })
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    console.log('Contact form submitted')
-    // TODO: remove mock functionality - implement real form submission
+    contactMutation.mutate(formData)
+  }
+
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({ ...prev, [field]: value }))
   }
 
   return (
@@ -141,76 +187,131 @@ export default function ContactSection() {
               <CardTitle>Send us a Message</CardTitle>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {isSubmitted ? (
+                <div className="text-center py-8">
+                  <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
+                  <h3 className="text-xl font-semibold mb-2">Message Sent!</h3>
+                  <p className="text-muted-foreground mb-4">
+                    Thank you for reaching out. We'll get back to you within 24 hours!
+                  </p>
+                  <Button 
+                    variant="outline" 
+                    onClick={() => {
+                      setIsSubmitted(false)
+                      setFormData({
+                        firstName: '',
+                        lastName: '',
+                        email: '',
+                        phone: '',
+                        subject: '',
+                        message: ''
+                      })
+                    }}
+                  >
+                    Send Another Message
+                  </Button>
+                </div>
+              ) : (
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="firstName">First Name</Label>
+                      <Input 
+                        id="firstName" 
+                        type="text" 
+                        placeholder="John"
+                        value={formData.firstName}
+                        onChange={(e) => handleInputChange('firstName', e.target.value)}
+                        required
+                        data-testid="input-first-name"
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="lastName">Last Name</Label>
+                      <Input 
+                        id="lastName" 
+                        type="text" 
+                        placeholder="Doe"
+                        value={formData.lastName}
+                        onChange={(e) => handleInputChange('lastName', e.target.value)}
+                        required
+                        data-testid="input-last-name"
+                      />
+                    </div>
+                  </div>
+
                   <div>
-                    <Label htmlFor="firstName">First Name</Label>
+                    <Label htmlFor="email">Email</Label>
                     <Input 
-                      id="firstName" 
-                      type="text" 
-                      placeholder="John"
-                      data-testid="input-first-name"
+                      id="email" 
+                      type="email" 
+                      placeholder="john@example.com"
+                      value={formData.email}
+                      onChange={(e) => handleInputChange('email', e.target.value)}
+                      required
+                      data-testid="input-contact-email"
                     />
                   </div>
+
                   <div>
-                    <Label htmlFor="lastName">Last Name</Label>
+                    <Label htmlFor="phone">Phone Number</Label>
                     <Input 
-                      id="lastName" 
-                      type="text" 
-                      placeholder="Doe"
-                      data-testid="input-last-name"
+                      id="phone" 
+                      type="tel" 
+                      placeholder="(555) 123-4567"
+                      value={formData.phone}
+                      onChange={(e) => handleInputChange('phone', e.target.value)}
+                      data-testid="input-contact-phone"
                     />
                   </div>
-                </div>
 
-                <div>
-                  <Label htmlFor="email">Email</Label>
-                  <Input 
-                    id="email" 
-                    type="email" 
-                    placeholder="john@example.com"
-                    data-testid="input-contact-email"
-                  />
-                </div>
+                  <div>
+                    <Label htmlFor="subject">Subject</Label>
+                    <Input 
+                      id="subject" 
+                      type="text" 
+                      placeholder="General Inquiry"
+                      value={formData.subject}
+                      onChange={(e) => handleInputChange('subject', e.target.value)}
+                      required
+                      data-testid="input-subject"
+                    />
+                  </div>
 
-                <div>
-                  <Label htmlFor="phone">Phone Number</Label>
-                  <Input 
-                    id="phone" 
-                    type="tel" 
-                    placeholder="(555) 123-4567"
-                    data-testid="input-contact-phone"
-                  />
-                </div>
+                  <div>
+                    <Label htmlFor="message">Message</Label>
+                    <Textarea
+                      id="message"
+                      placeholder="Tell us about your event, preferred dates, or any questions you have..."
+                      rows={4}
+                      value={formData.message}
+                      onChange={(e) => handleInputChange('message', e.target.value)}
+                      required
+                      data-testid="textarea-message"
+                    />
+                  </div>
 
-                <div>
-                  <Label htmlFor="subject">Subject</Label>
-                  <Input 
-                    id="subject" 
-                    type="text" 
-                    placeholder="General Inquiry"
-                    data-testid="input-subject"
-                  />
-                </div>
+                  <Button 
+                    type="submit" 
+                    className="w-full" 
+                    disabled={contactMutation.isPending}
+                    data-testid="button-send-message"
+                  >
+                    {contactMutation.isPending ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Sending...
+                      </>
+                    ) : (
+                      'Send Message'
+                    )}
+                  </Button>
 
-                <div>
-                  <Label htmlFor="message">Message</Label>
-                  <Textarea
-                    id="message"
-                    placeholder="Tell us about your event, preferred dates, or any questions you have..."
-                    rows={4}
-                    data-testid="textarea-message"
-                  />
-                </div>
-
-                <Button type="submit" className="w-full" data-testid="button-send-message">
-                  Send Message
-                </Button>
-
-                <p className="text-sm text-muted-foreground text-center">
-                  We'll get back to you within 24 hours!
-                </p>
-              </form>
+                  <p className="text-sm text-muted-foreground text-center">
+                    We'll get back to you within 24 hours!
+                  </p>
+                </form>
+              )}
             </CardContent>
           </Card>
         </div>

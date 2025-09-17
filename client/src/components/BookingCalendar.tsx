@@ -1,25 +1,15 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Calendar, Clock, User, Phone, Mail, CheckCircle } from 'lucide-react'
+import { Calendar, Clock, User, Phone, Mail, CheckCircle, Loader2 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-
-// TODO: remove mock functionality - replace with real booking system
-const availableSlots = [
-  '9:00 AM', '10:30 AM', '12:00 PM', '1:30 PM', '3:00 PM', '4:30 PM'
-]
-
-const services = [
-  { id: 'bridal', name: 'Bridal Makeup', duration: '3-4 hours', price: '$350-500' },
-  { id: 'event', name: 'Special Event', duration: '1.5-2 hours', price: '$150-250' },
-  { id: 'everyday', name: 'Everyday Glam', duration: '1 hour', price: '$80-120' },
-  { id: 'lesson', name: 'Makeup Lesson', duration: '2 hours', price: '$200' },
-  { id: 'group', name: 'Group Session', duration: '2-4 hours', price: '$100-150/person' }
-]
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useToast } from '@/hooks/use-toast'
+import type { Service } from '@shared/schema'
 
 export default function BookingCalendar() {
   const [selectedDate, setSelectedDate] = useState('')
@@ -33,6 +23,61 @@ export default function BookingCalendar() {
   })
   const [currentStep, setCurrentStep] = useState(1)
   const [isBooked, setIsBooked] = useState(false)
+  const { toast } = useToast()
+  const queryClient = useQueryClient()
+
+  // Fetch services from API
+  const { data: services = [], isLoading: servicesLoading } = useQuery({
+    queryKey: ['/api/services'],
+    queryFn: async () => {
+      const response = await fetch('/api/services')
+      if (!response.ok) throw new Error('Failed to fetch services')
+      return response.json() as Promise<Service[]>
+    }
+  })
+
+  // Fetch available time slots for selected date
+  const { data: availableSlots = [], isLoading: slotsLoading } = useQuery({
+    queryKey: ['/api/availability', selectedDate],
+    queryFn: async () => {
+      if (!selectedDate) return []
+      const response = await fetch(`/api/availability/${selectedDate}`)
+      if (!response.ok) throw new Error('Failed to fetch availability')
+      return response.json() as Promise<string[]>
+    },
+    enabled: !!selectedDate
+  })
+
+  // Book appointment mutation
+  const bookingMutation = useMutation({
+    mutationFn: async (appointmentData: any) => {
+      const response = await fetch('/api/appointments', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(appointmentData)
+      })
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Failed to book appointment')
+      }
+      return response.json()
+    },
+    onSuccess: () => {
+      setIsBooked(true)
+      queryClient.invalidateQueries({ queryKey: ['/api/availability'] })
+      toast({
+        title: "Booking Confirmed!",
+        description: "Your appointment has been successfully booked.",
+      })
+    },
+    onError: (error: Error) => {
+      toast({
+        variant: "destructive",
+        title: "Booking Failed",
+        description: error.message,
+      })
+    }
+  })
 
   // Generate next 30 days for date selection
   const generateDates = () => {
@@ -63,13 +108,26 @@ export default function BookingCalendar() {
   }
 
   const handleBooking = () => {
-    console.log('Booking submitted:', {
-      date: selectedDate,
-      time: selectedTime,
-      service: selectedService,
-      ...formData
-    })
-    setIsBooked(true)
+    if (!selectedService || !selectedDate || !selectedTime) return
+
+    // Parse time and create appointment datetime
+    const [time, period] = selectedTime.split(' ')
+    const [hours, minutes] = time.split(':').map(Number)
+    const adjustedHours = period === 'PM' && hours !== 12 ? hours + 12 : hours === 12 && period === 'AM' ? 0 : hours
+    
+    const appointmentDateTime = new Date(selectedDate)
+    appointmentDateTime.setHours(adjustedHours, minutes || 0, 0, 0)
+
+    const appointmentData = {
+      serviceId: selectedService,
+      clientName: formData.name,
+      clientEmail: formData.email,
+      clientPhone: formData.phone,
+      appointmentDate: appointmentDateTime.toISOString(),
+      notes: formData.notes || null
+    }
+
+    bookingMutation.mutate(appointmentData)
   }
 
   const canProceedToStep2 = selectedDate && selectedTime && selectedService
@@ -135,26 +193,35 @@ export default function BookingCalendar() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {services.map((service) => (
-                <div
-                  key={service.id}
-                  className={`p-4 border rounded-lg cursor-pointer transition-colors hover-elevate ${
-                    selectedService === service.id 
-                      ? 'border-ring bg-ring/10' 
-                      : 'border-border hover:border-ring/50'
-                  }`}
-                  onClick={() => setSelectedService(service.id)}
-                  data-testid={`service-${service.id}`}
-                >
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <h3 className="font-medium">{service.name}</h3>
-                      <p className="text-sm text-muted-foreground">Duration: {service.duration}</p>
-                    </div>
-                    <Badge variant="outline">{service.price}</Badge>
-                  </div>
+              {servicesLoading ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin" />
+                  <span className="ml-2">Loading services...</span>
                 </div>
-              ))}
+              ) : (
+                services.map((service) => (
+                  <div
+                    key={service.id}
+                    className={`p-4 border rounded-lg cursor-pointer transition-colors hover-elevate ${
+                      selectedService === service.id 
+                        ? 'border-ring bg-ring/10' 
+                        : 'border-border hover:border-ring/50'
+                    }`}
+                    onClick={() => setSelectedService(service.id)}
+                    data-testid={`service-${service.id}`}
+                  >
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <h3 className="font-medium">{service.name}</h3>
+                        <p className="text-sm text-muted-foreground">
+                          Duration: {Math.floor(service.duration / 60)}h {service.duration % 60 > 0 ? `${service.duration % 60}min` : ''}
+                        </p>
+                      </div>
+                      <Badge variant="outline">${service.price}</Badge>
+                    </div>
+                  </div>
+                ))
+              )}
             </CardContent>
           </Card>
 
@@ -199,23 +266,42 @@ export default function BookingCalendar() {
               {selectedDate && (
                 <div>
                   <Label className="text-sm font-medium mb-3 block">Available Times</Label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {availableSlots.map((time) => (
-                      <button
-                        key={time}
-                        className={`p-2 text-sm rounded-md border transition-colors hover-elevate ${
-                          selectedTime === time
-                            ? 'border-ring bg-ring/10 text-ring'
-                            : 'border-border hover:border-ring/50'
-                        }`}
-                        onClick={() => setSelectedTime(time)}
-                        data-testid={`time-${time.replace(/[:\s]/g, '').toLowerCase()}`}
-                      >
-                        <Clock className="w-3 h-3 inline mr-1" />
-                        {time}
-                      </button>
-                    ))}
-                  </div>
+                  {slotsLoading ? (
+                    <div className="flex items-center justify-center py-4">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span className="ml-2 text-sm">Loading available times...</span>
+                    </div>
+                  ) : availableSlots.length === 0 ? (
+                    <p className="text-sm text-muted-foreground py-4 text-center">
+                      No available time slots for this date. Please choose another date.
+                    </p>
+                  ) : (
+                    <div className="grid grid-cols-2 gap-2">
+                      {availableSlots.map((time) => {
+                        // Convert 24h format to 12h format for display
+                        const [hours, minutes] = time.split(':').map(Number)
+                        const period = hours >= 12 ? 'PM' : 'AM'
+                        const displayHours = hours > 12 ? hours - 12 : hours === 0 ? 12 : hours
+                        const displayTime = `${displayHours}:${minutes.toString().padStart(2, '0')} ${period}`
+                        
+                        return (
+                          <button
+                            key={time}
+                            className={`p-2 text-sm rounded-md border transition-colors hover-elevate ${
+                              selectedTime === displayTime
+                                ? 'border-ring bg-ring/10 text-ring'
+                                : 'border-border hover:border-ring/50'
+                            }`}
+                            onClick={() => setSelectedTime(displayTime)}
+                            data-testid={`time-${time.replace(/[:\s]/g, '').toLowerCase()}`}
+                          >
+                            <Clock className="w-3 h-3 inline mr-1" />
+                            {displayTime}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  )}
                 </div>
               )}
             </CardContent>
@@ -313,13 +399,19 @@ export default function BookingCalendar() {
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Duration:</span>
                   <span className="font-medium">
-                    {services.find(s => s.id === selectedService)?.duration}
+                    {(() => {
+                      const service = services.find(s => s.id === selectedService)
+                      if (!service) return ''
+                      const hours = Math.floor(service.duration / 60)
+                      const minutes = service.duration % 60
+                      return `${hours}h${minutes > 0 ? ` ${minutes}min` : ''}`
+                    })()}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Price:</span>
                   <span className="font-medium">
-                    {services.find(s => s.id === selectedService)?.price}
+                    ${services.find(s => s.id === selectedService)?.price}
                   </span>
                 </div>
               </div>
@@ -370,9 +462,17 @@ export default function BookingCalendar() {
         ) : (
           <Button
             onClick={handleBooking}
+            disabled={bookingMutation.isPending}
             data-testid="button-confirm-booking"
           >
-            Confirm Booking
+            {bookingMutation.isPending ? (
+              <>
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                Booking...
+              </>
+            ) : (
+              'Confirm Booking'
+            )}
           </Button>
         )}
       </div>
