@@ -11,55 +11,55 @@ import naturalImage from '@assets/generated_images/Natural_makeup_portfolio_phot
 const portfolioItems = [
   {
     id: 1,
-    title: 'Romantic Bridal Look',
+    title: 'Romantic Bridal Hair & Makeup',
     category: 'Bridal',
     image: bridalImage,
-    description: 'Soft, romantic bridal makeup with natural glow and subtle shimmer for the perfect wedding day look.',
-    tags: ['Bridal', 'Natural', 'Romantic']
+    description: 'Complete bridal transformation with elegant updo and soft, romantic makeup for the perfect wedding day look.',
+    tags: ['Bridal', 'Hair Styling', 'Makeup']
   },
   {
     id: 2,
-    title: 'Dramatic Evening Glam',
+    title: 'Glamorous Evening Styling',
     category: 'Evening',
     image: eveningImage,
-    description: 'Bold smoky eyes with perfect contouring for a stunning evening event transformation.',
-    tags: ['Evening', 'Dramatic', 'Smoky Eyes']
+    description: 'Bold smoky eye makeup paired with sleek hair styling for stunning evening event transformation.',
+    tags: ['Evening', 'Hair Styling', 'Makeup']
   },
   {
     id: 3,
-    title: 'Fresh Natural Glow',
-    category: 'Everyday',
+    title: 'Textured Waves & Natural Glow',
+    category: 'Hair Styling',
     image: naturalImage,
-    description: 'Effortless everyday makeup that enhances natural beauty with a fresh, glowing finish.',
-    tags: ['Natural', 'Everyday', 'Glowing']
+    description: 'Beautiful textured waves with effortless natural makeup that enhances your everyday beauty.',
+    tags: ['Hair Styling', 'Natural', 'Waves']
   },
   {
     id: 4,
-    title: 'Classic Elegance',
-    category: 'Special Event',
+    title: 'Precision Cut & Color',
+    category: 'Hair Styling',
     image: bridalImage,
-    description: 'Timeless elegant makeup perfect for special occasions and formal events.',
-    tags: ['Elegant', 'Classic', 'Formal']
+    description: 'Expert precision cutting and creative coloring to create your perfect new look.',
+    tags: ['Hair Cut', 'Color', 'Styling']
   },
   {
     id: 5,
-    title: 'Editorial Artistry',
+    title: 'Creative Editorial Looks',
     category: 'Editorial',
     image: eveningImage,
-    description: 'Creative editorial makeup showcasing artistic techniques and bold color choices.',
-    tags: ['Editorial', 'Creative', 'Artistic']
+    description: 'Artistic hair and makeup combinations showcasing creative techniques and bold styling choices.',
+    tags: ['Editorial', 'Creative', 'Hair & Makeup']
   },
   {
     id: 6,
-    title: 'Bohemian Bride',
-    category: 'Bridal',
+    title: 'Voluminous Curls & Glam',
+    category: 'Hair Styling',
     image: naturalImage,
-    description: 'Free-spirited bridal look with earthy tones and natural textures.',
-    tags: ['Bridal', 'Bohemian', 'Natural']
+    description: 'Beautiful voluminous curls with coordinated makeup for special occasions.',
+    tags: ['Curls', 'Volume', 'Special Event']
   }
 ]
 
-const categories = ['All', 'Bridal', 'Evening', 'Everyday', 'Special Event', 'Editorial']
+const categories = ['All', 'Bridal', 'Hair Styling', 'Evening', 'Special Event', 'Editorial']
 
 export default function PortfolioGallery() {
   const [selectedCategory, setSelectedCategory] = useState('All')
@@ -78,7 +78,7 @@ export default function PortfolioGallery() {
             Portfolio Gallery
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-            Explore my latest work and discover the artistry behind each transformation
+            Explore our latest hair styling and makeup work - discover the artistry behind each transformation
           </p>
         </div>
 
