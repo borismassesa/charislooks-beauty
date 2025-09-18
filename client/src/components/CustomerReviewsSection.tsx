@@ -174,25 +174,6 @@ export default function CustomerReviewsSection() {
         <MarqueeRow reviews={secondRowReviews} direction="ltr" />
       </div>
 
-      {/* Stats */}
-      <div className="mt-16 text-center">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
-            <div className="space-y-2">
-              <div className="text-3xl font-bold text-accent">1000+</div>
-              <div className="text-sm text-muted-foreground">Happy Clients</div>
-            </div>
-            <div className="space-y-2">
-              <div className="text-3xl font-bold text-accent">4.9/5</div>
-              <div className="text-sm text-muted-foreground">Average Rating</div>
-            </div>
-            <div className="space-y-2">
-              <div className="text-3xl font-bold text-accent">200+</div>
-              <div className="text-sm text-muted-foreground">Special Events</div>
-            </div>
-          </div>
-        </div>
-      </div>
     </section>
   )
 }
