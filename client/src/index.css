@@ -291,3 +291,56 @@
     inset: -1px;
   }
 }
+
+/* Marquee animations for customer reviews */
+@keyframes marquee-ltr {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes marquee-rtl {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}
+
+.animate-marquee-ltr {
+  animation: marquee-ltr 30s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee-rtl {
+  animation: marquee-rtl 35s linear infinite;
+  will-change: transform;
+}
+
+/* Pause animation on hover */
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+
+/* Also pause when any child has focus */
+.marquee-track:focus-within {
+  animation-play-state: paused;
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  .animate-marquee-ltr,
+  .animate-marquee-rtl {
+    animation: none;
+  }
+  
+  .marquee-track {
+    /* Fall back to a simple horizontal scroll for reduced motion users */
+    overflow-x: auto;
+    scroll-behavior: smooth;
+  }
+}
