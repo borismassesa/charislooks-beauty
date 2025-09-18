@@ -70,24 +70,6 @@ export default function Hero() {
               </Button>
             </Link>
           </div>
-
-          {/* Stats */}
-          <div className="mt-12 pt-8 border-t border-white/20">
-            <div className="grid grid-cols-3 gap-8 text-center">
-              <div>
-                <div className="text-2xl sm:text-3xl font-bold text-white drop-shadow-lg">1000+</div>
-                <div className="text-sm text-white/80">Happy Clients</div>
-              </div>
-              <div>
-                <div className="text-2xl sm:text-3xl font-bold text-white drop-shadow-lg">8+</div>
-                <div className="text-sm text-white/80">Years Experience</div>
-              </div>
-              <div>
-                <div className="text-2xl sm:text-3xl font-bold text-white drop-shadow-lg">200+</div>
-                <div className="text-sm text-white/80">Weddings & Events</div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
     </section>
