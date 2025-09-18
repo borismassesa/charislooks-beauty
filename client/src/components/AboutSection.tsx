@@ -1,8 +1,9 @@
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Award, Users, Clock, Star } from 'lucide-react'
+import { Award, Users, Clock, Star, Calendar } from 'lucide-react'
 import { Link } from 'wouter'
+import { SiInstagram, SiFacebook, SiTiktok } from 'react-icons/si'
 import artistPhoto from '@assets/generated_images/Artist_professional_headshot_39b60e01.png'
 
 export default function AboutSection() {
@@ -57,6 +58,58 @@ export default function AboutSection() {
                   <Clock className="h-4 w-4 mr-2 text-ring" />
                   Special Event Styling
                 </Badge>
+              </div>
+            </div>
+
+            {/* CTA Section */}
+            <div className="flex flex-col sm:flex-row gap-4 items-center">
+              {/* Primary CTA */}
+              <Link href="/booking">
+                <Button 
+                  size="lg" 
+                  className="bg-ring text-white hover:bg-ring/90 px-8 py-3"
+                  data-testid="button-book-about-cta"
+                >
+                  <Calendar className="w-4 h-4 mr-2" />
+                  Book Your Appointment
+                </Button>
+              </Link>
+              
+              {/* Social Proof */}
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-muted-foreground">See our work:</span>
+                <div className="flex items-center gap-2">
+                  <a
+                    href="https://instagram.com/charislooks"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-muted-foreground hover:text-ring transition-colors duration-200 p-2 hover-elevate rounded-md"
+                    data-testid="link-instagram-about"
+                    aria-label="See our work on Instagram"
+                  >
+                    <SiInstagram className="h-5 w-5" />
+                  </a>
+                  <a
+                    href="https://facebook.com/charislooks"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-muted-foreground hover:text-ring transition-colors duration-200 p-2 hover-elevate rounded-md"
+                    data-testid="link-facebook-about"
+                    aria-label="See our work on Facebook"
+                  >
+                    <SiFacebook className="h-5 w-5" />
+                  </a>
+                  <a
+                    href="https://tiktok.com/@charislooks"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-muted-foreground hover:text-ring transition-colors duration-200 p-2 hover-elevate rounded-md"
+                    data-testid="link-tiktok-about"
+                    aria-label="See our work on TikTok"
+                  >
+                    <SiTiktok className="h-5 w-5" />
+                  </a>
+                </div>
               </div>
             </div>
 
