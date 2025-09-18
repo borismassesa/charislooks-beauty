@@ -52,47 +52,43 @@ export default function ServicesSection() {
   const ServicesGrid = ({ services, tabName }: { services: Service[], tabName: string }) => (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {services.map((service, index) => (
-        <Card key={service.id} className="relative hover-elevate group" data-testid={`card-service-${tabName.toLowerCase()}-${service.id}`}>
+        <Card key={service.id} className="relative hover-elevate group overflow-hidden" data-testid={`card-service-${tabName.toLowerCase()}-${service.id}`}>
           {(service.category === 'bridal' || index === 0) && (
-            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-              <Badge className="bg-ring text-white">
+            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
+              <Badge className="bg-ring text-white shadow-lg">
                 <Star className="w-3 h-3 mr-1 fill-current" />
                 Popular
               </Badge>
             </div>
           )}
           
-          <CardHeader className="pb-4">
-            <CardTitle className="text-xl font-serif">{service.name}</CardTitle>
+          {/* Header with improved spacing */}
+          <CardHeader className="pb-6 space-y-3">
+            <div className="flex items-start justify-between">
+              <CardTitle className="text-xl font-serif leading-tight pr-2">{service.name}</CardTitle>
+              <Badge variant="outline" className="capitalize text-xs">
+                {service.category}
+              </Badge>
+            </div>
             <p className="text-muted-foreground text-sm leading-relaxed">
               {service.description}
             </p>
           </CardHeader>
 
-          <CardContent className="pt-0">
-            {/* Price and Duration */}
-            <div className="flex items-center justify-between mb-4 p-3 bg-muted/50 rounded-md">
-              <div className="flex items-center space-x-2">
-                <Clock className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium">{formatDuration(service.duration)}</span>
+          <CardContent className="pt-0 pb-6 space-y-4">
+            {/* Price prominently displayed */}
+            <div className="text-center py-4 bg-ring/5 rounded-lg border border-ring/20">
+              <div className="text-2xl font-bold text-ring">${service.price}</div>
+              <div className="flex items-center justify-center mt-1 text-sm text-muted-foreground">
+                <Clock className="h-3 w-3 mr-1" />
+                {formatDuration(service.duration)}
               </div>
-              <div className="flex items-center space-x-2">
-                <DollarSign className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium">${service.price}</span>
-              </div>
-            </div>
-
-            {/* Category Badge */}
-            <div className="mb-6">
-              <Badge variant="outline" className="capitalize">
-                {service.category}
-              </Badge>
             </div>
 
             {/* CTA Button */}
             <Link href="/booking">
               <Button 
-                className="w-full bg-white text-black hover:bg-white/90" 
+                className="w-full h-11 bg-ring text-white hover:bg-ring/90 font-medium" 
                 data-testid={`button-book-${service.id}`}
               >
                 <Calendar className="w-4 h-4 mr-2" />
@@ -106,7 +102,7 @@ export default function ServicesSection() {
   )
 
   return (
-    <section className="py-16 lg:py-24 bg-muted/30">
+    <section className="py-16 lg:py-24">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-12">
