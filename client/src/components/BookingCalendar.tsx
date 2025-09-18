@@ -192,49 +192,135 @@ export default function BookingCalendar() {
                 Select Service
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
+            <CardContent className="space-y-4">
               {servicesLoading ? (
                 <div className="flex items-center justify-center py-8">
                   <Loader2 className="h-6 w-6 animate-spin" />
                   <span className="ml-2">Loading services...</span>
                 </div>
               ) : (
-                services.map((service) => (
-                  <div
-                    key={service.id}
-                    className={`p-4 border rounded-lg cursor-pointer transition-colors hover-elevate ${
-                      selectedService === service.id 
-                        ? 'border-ring bg-ring/10' 
-                        : 'border-border hover:border-ring/50'
-                    }`}
-                    onClick={() => setSelectedService(service.id)}
-                    data-testid={`service-${service.id}`}
-                  >
-                    <div className="space-y-3">
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <h3 className="font-medium">{service.name}</h3>
-                          <p className="text-sm text-muted-foreground">
-                            Duration: {Math.floor(service.duration / 60)}h {service.duration % 60 > 0 ? `${service.duration % 60}min` : ''}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <Badge variant="outline">${service.price}</Badge>
-                          <p className="text-xs text-yellow-500 mt-1">
-                            Deposit: ${(parseFloat(service.price) * 0.20).toFixed(2)}
-                          </p>
+                <>
+                  {/* Service Dropdown */}
+                  <div className="space-y-2">
+                    <Label className="text-sm font-medium">Choose a Service</Label>
+                    <Select 
+                      value={selectedService} 
+                      onValueChange={setSelectedService}
+                      data-testid="select-service"
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select a service..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {/* Makeup Services */}
+                        {services.filter(s => s.category === 'makeup').length > 0 && (
+                          <>
+                            <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                              Makeup Services
+                            </div>
+                            {services
+                              .filter(s => s.category === 'makeup')
+                              .map((service) => (
+                                <SelectItem 
+                                  key={service.id} 
+                                  value={service.id}
+                                  data-testid={`option-service-${service.id}`}
+                                >
+                                  <div className="flex justify-between items-center w-full">
+                                    <span>{service.name}</span>
+                                    <span className="text-xs text-muted-foreground ml-2">${service.price}</span>
+                                  </div>
+                                </SelectItem>
+                              ))}
+                          </>
+                        )}
+                        
+                        {/* Hair Services */}
+                        {services.filter(s => s.category === 'hair').length > 0 && (
+                          <>
+                            <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                              Hair Services
+                            </div>
+                            {services
+                              .filter(s => s.category === 'hair')
+                              .map((service) => (
+                                <SelectItem 
+                                  key={service.id} 
+                                  value={service.id}
+                                  data-testid={`option-service-${service.id}`}
+                                >
+                                  <div className="flex justify-between items-center w-full">
+                                    <span>{service.name}</span>
+                                    <span className="text-xs text-muted-foreground ml-2">${service.price}</span>
+                                  </div>
+                                </SelectItem>
+                              ))}
+                          </>
+                        )}
+                        
+                        {/* Package Services */}
+                        {services.filter(s => s.category === 'packages').length > 0 && (
+                          <>
+                            <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                              Package Services
+                            </div>
+                            {services
+                              .filter(s => s.category === 'packages')
+                              .map((service) => (
+                                <SelectItem 
+                                  key={service.id} 
+                                  value={service.id}
+                                  data-testid={`option-service-${service.id}`}
+                                >
+                                  <div className="flex justify-between items-center w-full">
+                                    <span>{service.name}</span>
+                                    <span className="text-xs text-muted-foreground ml-2">${service.price}</span>
+                                  </div>
+                                </SelectItem>
+                              ))}
+                          </>
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Selected Service Details */}
+                  {selectedService && (() => {
+                    const service = services.find(s => s.id === selectedService)
+                    if (!service) return null
+                    
+                    return (
+                      <div className="p-4 bg-ring/5 rounded-lg border border-ring/20" data-testid="selected-service-details">
+                        <div className="space-y-3">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h3 className="font-medium text-foreground">{service.name}</h3>
+                              <p className="text-sm text-muted-foreground">
+                                Duration: {Math.floor(service.duration / 60)}h {service.duration % 60 > 0 ? `${service.duration % 60}min` : ''}
+                              </p>
+                              {service.description && (
+                                <p className="text-xs text-muted-foreground mt-1">{service.description}</p>
+                              )}
+                            </div>
+                            <div className="text-right">
+                              <Badge variant="outline" className="border-ring/30">${service.price}</Badge>
+                            </div>
+                          </div>
+                          <div className="pt-2 border-t border-ring/20">
+                            <div className="flex justify-between items-center">
+                              <p className="text-xs text-yellow-600 font-medium">
+                                Required Deposit: ${(parseFloat(service.price) * 0.20).toFixed(2)}
+                              </p>
+                              <p className="text-xs text-muted-foreground">
+                                (20% of total price)
+                              </p>
+                            </div>
+                          </div>
                         </div>
                       </div>
-                      {selectedService === service.id && (
-                        <div className="pt-2 border-t border-yellow-500/20">
-                          <p className="text-xs text-yellow-500/90">
-                            ⚠️ 20% deposit required to secure your appointment
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                ))
+                    )
+                  })()}
+                </>
               )}
             </CardContent>
           </Card>
