@@ -152,7 +152,7 @@ export default function CustomerReviewsSection() {
   const secondRowReviews = reviews.slice(4, 8)
 
   return (
-    <section className="py-16 lg:py-24 bg-muted/30 overflow-hidden">
+    <section className="py-16 lg:py-24 bg-muted/30">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="text-center mb-12">
@@ -163,17 +163,16 @@ export default function CustomerReviewsSection() {
             Real stories from real clients who trusted us with their beauty journey
           </p>
         </div>
-      </div>
 
-      {/* Marquee Rows */}
-      <div className="space-y-6">
-        {/* First row: Right to Left */}
-        <MarqueeRow reviews={firstRowReviews} direction="rtl" />
-        
-        {/* Second row: Left to Right */}
-        <MarqueeRow reviews={secondRowReviews} direction="ltr" />
+        {/* Marquee Rows */}
+        <div className="space-y-6 overflow-hidden">
+          {/* First row: Right to Left */}
+          <MarqueeRow reviews={firstRowReviews} direction="rtl" />
+          
+          {/* Second row: Left to Right */}
+          <MarqueeRow reviews={secondRowReviews} direction="ltr" />
+        </div>
       </div>
-
     </section>
   )
 }
