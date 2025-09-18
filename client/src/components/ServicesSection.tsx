@@ -50,49 +50,54 @@ export default function ServicesSection() {
 
   // Component to render services grid
   const ServicesGrid = ({ services, tabName }: { services: Service[], tabName: string }) => (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
       {services.map((service, index) => (
-        <Card key={service.id} className="relative hover-elevate group overflow-hidden" data-testid={`card-service-${tabName.toLowerCase()}-${service.id}`}>
+        <Card key={service.id} className="relative hover-elevate group border-0 shadow-lg bg-gradient-to-br from-card to-card/50" data-testid={`card-service-${tabName.toLowerCase()}-${service.id}`}>
           {(service.category === 'bridal' || index === 0) && (
-            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 z-10">
-              <Badge className="bg-ring text-white shadow-lg">
+            <div className="absolute -top-2 -right-2 z-10">
+              <Badge className="bg-gradient-to-r from-ring to-ring/80 text-white shadow-lg border-0 px-3 py-1">
                 <Star className="w-3 h-3 mr-1 fill-current" />
-                Popular
+                Most Popular
               </Badge>
             </div>
           )}
           
-          {/* Header with improved spacing */}
-          <CardHeader className="pb-6 space-y-3">
-            <div className="flex items-start justify-between">
-              <CardTitle className="text-xl font-serif leading-tight pr-2">{service.name}</CardTitle>
-              <Badge variant="outline" className="capitalize text-xs">
-                {service.category}
-              </Badge>
-            </div>
-            <p className="text-muted-foreground text-sm leading-relaxed">
-              {service.description}
-            </p>
-          </CardHeader>
-
-          <CardContent className="pt-0 pb-6 space-y-4">
-            {/* Price prominently displayed */}
-            <div className="text-center py-4 bg-ring/5 rounded-lg border border-ring/20">
-              <div className="text-2xl font-bold text-ring">${service.price}</div>
-              <div className="flex items-center justify-center mt-1 text-sm text-muted-foreground">
-                <Clock className="h-3 w-3 mr-1" />
-                {formatDuration(service.duration)}
+          <CardContent className="p-8">
+            {/* Service Header */}
+            <div className="mb-6">
+              <div className="flex items-center justify-between mb-3">
+                <Badge variant="secondary" className="text-xs font-medium bg-ring/10 text-ring border-ring/20">
+                  {service.category}
+                </Badge>
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-ring">${service.price}</div>
+                  <div className="flex items-center text-xs text-muted-foreground">
+                    <Clock className="h-3 w-3 mr-1" />
+                    {formatDuration(service.duration)}
+                  </div>
+                </div>
               </div>
+              
+              <h3 className="text-xl font-serif font-bold text-foreground leading-tight mb-3">
+                {service.name}
+              </h3>
+              
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                {service.description}
+              </p>
             </div>
 
-            {/* CTA Button */}
+            {/* Elegant Divider */}
+            <div className="w-full h-px bg-gradient-to-r from-transparent via-ring/30 to-transparent mb-6"></div>
+
+            {/* Book Now Button */}
             <Link href="/booking">
               <Button 
-                className="w-full h-11 bg-ring text-white hover:bg-ring/90 font-medium" 
+                className="w-full h-12 bg-gradient-to-r from-ring to-ring/90 text-white hover:from-ring/90 hover:to-ring/80 font-medium shadow-lg border-0 transition-all duration-300" 
                 data-testid={`button-book-${service.id}`}
               >
                 <Calendar className="w-4 h-4 mr-2" />
-                Book Now
+                Book This Service
               </Button>
             </Link>
           </CardContent>
