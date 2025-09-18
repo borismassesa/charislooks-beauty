@@ -26,51 +26,12 @@ import {
   Briefcase,
 } from "lucide-react";
 
-// Simple admin components for now
-function AdminOverview() {
-  return (
-    <div>
-      <h2 className="text-2xl font-bold mb-4">Dashboard Overview</h2>
-      <p>Welcome to the admin panel. Use the sidebar to navigate.</p>
-    </div>
-  );
-}
-
-function AdminServices() {
-  return (
-    <div>
-      <h2 className="text-2xl font-bold mb-4">Manage Services</h2>
-      <p>Service management coming soon.</p>
-    </div>
-  );
-}
-
-function AdminPortfolio() {
-  return (
-    <div>
-      <h2 className="text-2xl font-bold mb-4">Manage Portfolio</h2>
-      <p>Portfolio management coming soon.</p>
-    </div>
-  );
-}
-
-function AdminAppointments() {
-  return (
-    <div>
-      <h2 className="text-2xl font-bold mb-4">Manage Appointments</h2>
-      <p>Appointment management coming soon.</p>
-    </div>
-  );
-}
-
-function AdminMessages() {
-  return (
-    <div>
-      <h2 className="text-2xl font-bold mb-4">Manage Messages</h2>
-      <p>Message management coming soon.</p>
-    </div>
-  );
-}
+// Import actual admin components
+import AdminOverview from "./admin/AdminOverview";
+import AdminServices from "./admin/AdminServices";
+import AdminPortfolio from "./admin/AdminPortfolio";
+import AdminAppointments from "./admin/AdminAppointments";
+import AdminMessages from "./admin/AdminMessages";
 
 const menuItems = [
   {
