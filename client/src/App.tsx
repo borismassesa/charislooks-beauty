@@ -28,6 +28,7 @@ function Router() {
         <Route path="/booking" component={Booking} />
         <Route path="/contact" component={Contact} />
         <Route path="/admin" component={AdminLogin} />
+        <Route path="/admin/dashboard" component={AdminDashboard} />
         <Route path="/admin/dashboard/:rest*" component={AdminDashboard} />
         <Route component={NotFound} />
       </Switch>
