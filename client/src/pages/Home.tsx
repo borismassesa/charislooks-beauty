@@ -3,6 +3,7 @@ import PortfolioGallery from '@/components/PortfolioGallery'
 import ServicesSection from '@/components/ServicesSection'
 import AboutSection from '@/components/AboutSection'
 import StatsSection from '@/components/StatsSection'
+import CustomerReviewsSection from '@/components/CustomerReviewsSection'
 import ContactSection from '@/components/ContactSection'
 import Footer from '@/components/Footer'
 
@@ -14,6 +15,7 @@ export default function Home() {
       <StatsSection />
       <PortfolioGallery />
       <ServicesSection />
+      <CustomerReviewsSection />
       <ContactSection />
       <Footer />
     </div>
