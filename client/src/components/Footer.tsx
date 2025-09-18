@@ -16,6 +16,7 @@ export default function Footer() {
 
           {/* Social Media Links */}
           <div className="flex items-center space-x-6">
+            <span className="text-muted-foreground text-sm">Follow Us:</span>
             <a
               href="https://instagram.com/charislooks"
               target="_blank"

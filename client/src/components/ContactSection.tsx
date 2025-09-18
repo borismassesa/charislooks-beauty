@@ -158,27 +158,6 @@ export default function ContactSection() {
               </CardContent>
             </Card>
 
-            {/* Social Media */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Follow Us</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex space-x-4">
-                  <Button variant="outline" size="sm" data-testid="button-instagram">
-                    <Instagram className="h-4 w-4 mr-2" />
-                    Instagram
-                  </Button>
-                  <Button variant="outline" size="sm" data-testid="button-facebook">
-                    <Facebook className="h-4 w-4 mr-2" />
-                    Facebook
-                  </Button>
-                </div>
-                <p className="text-sm text-muted-foreground mt-3">
-                  Follow us for daily inspiration, makeup tips, and behind-the-scenes content!
-                </p>
-              </CardContent>
-            </Card>
           </div>
 
           {/* Contact Form */}
