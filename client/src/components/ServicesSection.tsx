@@ -54,7 +54,7 @@ export default function ServicesSection() {
       {services.map((service, index) => (
         <Card key={service.id} className="relative hover-elevate group border-0 shadow-lg bg-gradient-to-br from-card to-card/50" data-testid={`card-service-${tabName.toLowerCase()}-${service.id}`}>
           {(service.category === 'bridal' || index === 0) && (
-            <div className="absolute -top-2 -right-2 z-10">
+            <div className="absolute -top-2 left-1/2 transform -translate-x-1/2 z-10">
               <Badge className="bg-gradient-to-r from-ring to-ring/80 text-white shadow-lg border-0 px-3 py-1">
                 <Star className="w-3 h-3 mr-1 fill-current" />
                 Most Popular
@@ -65,15 +65,14 @@ export default function ServicesSection() {
           <CardContent className="p-8">
             {/* Service Header */}
             <div className="mb-6">
-              <div className="mb-3">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-xl font-serif font-bold text-foreground leading-tight">
+                  {service.name}
+                </h3>
                 <Badge variant="secondary" className="text-xs font-medium bg-ring/10 text-ring border-ring/20">
                   {service.category}
                 </Badge>
               </div>
-              
-              <h3 className="text-xl font-serif font-bold text-foreground leading-tight mb-3">
-                {service.name}
-              </h3>
               
               <p className="text-muted-foreground text-sm leading-relaxed">
                 {service.description}
