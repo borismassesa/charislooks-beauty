@@ -10,9 +10,6 @@ export default function Footer() {
           {/* Copyright and Legal Links */}
           <div className="text-center sm:text-left">
             <div className="flex flex-col sm:flex-row items-center gap-4">
-              <p className="text-muted-foreground text-sm">
-                © {currentYear} CharisLooks. All rights reserved.
-              </p>
               <div className="flex items-center gap-4 text-xs">
                 <a 
                   href="/privacy" 
@@ -29,6 +26,9 @@ export default function Footer() {
                   Cookies
                 </a>
               </div>
+              <p className="text-muted-foreground text-sm">
+                © {currentYear} CharisLooks. All rights reserved.
+              </p>
             </div>
           </div>
 
