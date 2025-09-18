@@ -5,7 +5,7 @@ import salonInteriorImage from '@assets/generated_images/Salon_interior_photo_cb
 
 export default function Hero() {
   return (
-    <section className="relative min-h-screen bg-gradient-to-br from-white via-rose-50/30 to-amber-50/40 overflow-hidden">
+    <section className="relative min-h-screen bg-gradient-to-br from-gray-50 via-white to-ring/5 overflow-hidden">
       {/* Decorative Elements */}
       <div className="absolute inset-0 pointer-events-none">
         {/* Top Left */}
@@ -82,19 +82,44 @@ export default function Hero() {
           
           {/* Right Image */}
           <div className="relative">
-            <div className="relative bg-gradient-to-br from-gray-100 to-gray-200 rounded-3xl p-2 shadow-2xl">
-              <div 
-                className="w-full h-[500px] lg:h-[600px] bg-cover bg-center bg-no-repeat rounded-2xl"
-                style={{ backgroundImage: `url(${salonInteriorImage})` }}
-              >
-                {/* Subtle overlay to match the aesthetic */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent rounded-2xl" />
+            {/* Main Image Container */}
+            <div className="relative group">
+              {/* Professional Image Frame */}
+              <div className="relative bg-white rounded-2xl p-1 shadow-xl border border-gray-100 overflow-hidden">
+                <div 
+                  className="w-full h-[500px] lg:h-[600px] bg-cover bg-center bg-no-repeat rounded-xl transition-transform duration-500 group-hover:scale-105"
+                  style={{ backgroundImage: `url(${salonInteriorImage})` }}
+                >
+                  {/* Elegant overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-tr from-ring/10 via-transparent to-transparent rounded-xl" />
+                  <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/5 rounded-xl" />
+                </div>
               </div>
               
-              {/* Floating Badge */}
-              <div className="absolute -top-3 -left-3 bg-white rounded-full p-3 shadow-lg border border-gray-200">
-                <Scissors className="h-6 w-6 text-ring" />
+              {/* Professional UI Elements */}
+              {/* Top Badge */}
+              <div className="absolute -top-4 left-6 bg-gradient-to-r from-ring to-ring/80 text-white rounded-full px-4 py-2 shadow-lg">
+                <div className="flex items-center gap-2">
+                  <Star className="h-4 w-4 fill-current" />
+                  <span className="text-sm font-medium">Professional Salon</span>
+                </div>
               </div>
+              
+              {/* Bottom Right Badge */}
+              <div className="absolute -bottom-3 -right-3 bg-white rounded-full p-4 shadow-xl border border-gray-100">
+                <div className="flex items-center justify-center w-8 h-8 bg-ring/10 rounded-full">
+                  <Scissors className="h-5 w-5 text-ring" />
+                </div>
+              </div>
+              
+              {/* Floating Elements */}
+              <div className="absolute top-12 -right-6 bg-white/90 backdrop-blur-sm rounded-full p-3 shadow-lg border border-white/20">
+                <Palette className="h-5 w-5 text-ring" />
+              </div>
+              
+              {/* Decorative Accent */}
+              <div className="absolute bottom-16 -left-4 w-16 h-16 bg-gradient-to-br from-ring/20 to-ring/10 rounded-full blur-xl"></div>
+              <div className="absolute top-20 -left-2 w-12 h-12 bg-gradient-to-br from-amber-400/20 to-amber-400/10 rounded-full blur-lg"></div>
             </div>
           </div>
           
