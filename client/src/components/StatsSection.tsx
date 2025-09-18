@@ -5,7 +5,7 @@ import { Link } from 'wouter'
 
 export default function StatsSection() {
   return (
-    <section className="py-16 lg:py-24 bg-muted/30">
+    <section className="py-16 lg:py-24 bg-white">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <Card className="p-8 text-center">
@@ -20,7 +20,7 @@ export default function StatsSection() {
             <Link href="/booking">
               <Button size="lg" className="bg-accent hover:bg-accent/90 text-lg px-8 py-4" data-testid="button-book-now">
                 <Calendar className="h-5 w-5 mr-2" />
-                Book Your Look Now
+                Book Your Appointment
               </Button>
             </Link>
           </div>
