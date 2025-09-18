@@ -54,7 +54,7 @@ export default function ServicesSection() {
       {services.map((service, index) => (
         <Card key={service.id} className="relative hover-elevate group" data-testid={`card-service-${tabName.toLowerCase()}-${service.id}`}>
           {(service.category === 'bridal' || index === 0) && (
-            <div className="absolute -top-3 left-6">
+            <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
               <Badge className="bg-ring text-white">
                 <Star className="w-3 h-3 mr-1 fill-current" />
                 Popular
@@ -92,8 +92,7 @@ export default function ServicesSection() {
             {/* CTA Button */}
             <Link href="/booking">
               <Button 
-                className="w-full" 
-                variant={(service.category === 'bridal' || index === 0) ? 'default' : 'outline'}
+                className="w-full bg-white text-black hover:bg-white/90" 
                 data-testid={`button-book-${service.id}`}
               >
                 <Calendar className="w-4 h-4 mr-2" />
