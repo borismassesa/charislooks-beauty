@@ -194,7 +194,7 @@ export default function ServicesSection() {
                 and can create a personalized service just for you.
               </p>
               <Link href="/contact">
-                <Button variant="outline" data-testid="button-contact-custom">
+                <Button className="bg-white hover:bg-white/90 text-black" data-testid="button-contact-custom">
                   Get Custom Quote
                 </Button>
               </Link>
