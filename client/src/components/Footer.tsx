@@ -7,11 +7,29 @@ export default function Footer() {
     <footer className="bg-background border-t border-border">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col sm:flex-row justify-between items-center gap-6">
-          {/* Copyright */}
+          {/* Copyright and Legal Links */}
           <div className="text-center sm:text-left">
-            <p className="text-muted-foreground text-sm">
-              © {currentYear} CharisLooks. All rights reserved.
-            </p>
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <p className="text-muted-foreground text-sm">
+                © {currentYear} CharisLooks. All rights reserved.
+              </p>
+              <div className="flex items-center gap-4 text-xs">
+                <a 
+                  href="/privacy" 
+                  className="text-muted-foreground hover:text-ring transition-colors duration-200"
+                  data-testid="link-privacy"
+                >
+                  Privacy Policy
+                </a>
+                <a 
+                  href="/cookies" 
+                  className="text-muted-foreground hover:text-ring transition-colors duration-200"
+                  data-testid="link-cookies"
+                >
+                  Cookies
+                </a>
+              </div>
+            </div>
           </div>
 
           {/* Social Media Links */}

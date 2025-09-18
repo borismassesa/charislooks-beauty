@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ThemeProvider } from "@/lib/theme-provider";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import Home from "@/pages/Home";
 import Portfolio from "@/pages/Portfolio";
 import Services from "@/pages/Services";
@@ -32,6 +33,7 @@ function Router() {
         <Route path="/admin/dashboard/:rest*" component={AdminDashboard} />
         <Route component={NotFound} />
       </Switch>
+      {!isAdminRoute && <Footer />}
     </>
   );
 }

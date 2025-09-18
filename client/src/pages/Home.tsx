@@ -5,8 +5,6 @@ import AboutSection from '@/components/AboutSection'
 import StatsSection from '@/components/StatsSection'
 import CustomerReviewsSection from '@/components/CustomerReviewsSection'
 import ContactSection from '@/components/ContactSection'
-import Footer from '@/components/Footer'
-
 export default function Home() {
   return (
     <div className="pt-16">
@@ -17,7 +15,6 @@ export default function Home() {
       <ServicesSection />
       <CustomerReviewsSection />
       <ContactSection />
-      <Footer />
     </div>
   )
 }
