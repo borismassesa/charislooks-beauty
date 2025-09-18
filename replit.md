@@ -9,9 +9,11 @@ The application emphasizes premium beauty brand aesthetics with elegant, minimal
 ## Recent Changes
 
 **September 18, 2025**: Major UI/UX enhancements completed:
+- **Homepage Hero Redesign**: Transformed from full-width background to split-screen layout with content on left and salon image on right, featuring "Experience Timeless Beauty Redefined with CharisLooks" messaging, decorative star elements, and professional two-button CTA design
 - **Portfolio Page Transformation**: Completely redesigned from basic layout to professional hero-style page with compelling "Artistry in Every Transformation" headline, background imagery, and engaging visual hierarchy
 - **Services Page Enhancement**: Added dramatic hero section with "Expert Beauty Services" headline, salon interior background, and professional styling matching Portfolio page design
 - **Contact Page Redesign**: Created engaging "Let's Create Your Perfect Look" hero section with artist professional imagery and consistent branding across all three main pages
+- **Booking UX Improvement**: Replaced overwhelming service list with clean dropdown grouped by categories (Makeup, Hair, Packages) with progressive disclosure of service details
 - **Cohesive Design System**: Implemented unified 70vh hero sections, dark gradient overlays, serif typography, ring accent color, and decorative elements across Portfolio, Services, and Contact pages
 - **User Experience Improvements**: Enhanced visual flow, professional section organization, and consistent call-to-action patterns throughout all transformed pages
 
