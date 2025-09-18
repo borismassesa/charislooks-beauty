@@ -1,6 +1,4 @@
-import { drizzle } from 'drizzle-orm/node-postgres';
 import { eq, desc, and, gte, lt } from 'drizzle-orm';
-import pg from 'pg';
 import { 
   services,
   appointments,
@@ -20,14 +18,7 @@ import {
 } from "@shared/schema";
 import { IStorage } from './storage';
 import bcrypt from 'bcryptjs';
-
-const { Pool } = pg;
-
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-});
-
-const db = drizzle(pool);
+import { db } from './db';
 
 export class DrizzleStorage implements IStorage {
   // Services
