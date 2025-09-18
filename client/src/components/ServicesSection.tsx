@@ -65,17 +65,10 @@ export default function ServicesSection() {
           <CardContent className="p-8">
             {/* Service Header */}
             <div className="mb-6">
-              <div className="flex items-center justify-between mb-3">
+              <div className="mb-3">
                 <Badge variant="secondary" className="text-xs font-medium bg-ring/10 text-ring border-ring/20">
                   {service.category}
                 </Badge>
-                <div className="text-right">
-                  <div className="text-2xl font-bold text-ring">${service.price}</div>
-                  <div className="flex items-center text-xs text-muted-foreground">
-                    <Clock className="h-3 w-3 mr-1" />
-                    {formatDuration(service.duration)}
-                  </div>
-                </div>
               </div>
               
               <h3 className="text-xl font-serif font-bold text-foreground leading-tight mb-3">
@@ -89,6 +82,21 @@ export default function ServicesSection() {
 
             {/* Elegant Divider */}
             <div className="w-full h-px bg-gradient-to-r from-transparent via-ring/30 to-transparent mb-6"></div>
+
+            {/* Price and Duration */}
+            <div className="flex items-center justify-between mb-6 p-4 bg-ring/5 rounded-lg border border-ring/10">
+              <div className="text-left">
+                <div className="text-2xl font-bold text-ring">${service.price}</div>
+                <div className="text-xs text-muted-foreground">Starting price</div>
+              </div>
+              <div className="text-right">
+                <div className="flex items-center text-sm font-medium text-foreground">
+                  <Clock className="h-4 w-4 mr-1 text-ring" />
+                  {formatDuration(service.duration)}
+                </div>
+                <div className="text-xs text-muted-foreground">Duration</div>
+              </div>
+            </div>
 
             {/* Book Now Button */}
             <Link href="/booking">
