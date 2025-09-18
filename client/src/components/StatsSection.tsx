@@ -1,6 +1,6 @@
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Calendar, Image, DollarSign, Phone, Clock } from 'lucide-react'
+import { Calendar } from 'lucide-react'
 import { Link } from 'wouter'
 
 export default function StatsSection() {
@@ -25,36 +25,6 @@ export default function StatsSection() {
             </Link>
           </div>
 
-          {/* Secondary CTAs Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <Link href="/portfolio">
-              <Button variant="outline" size="lg" className="w-full h-auto py-4 flex flex-col gap-2" data-testid="button-portfolio">
-                <Image className="h-5 w-5" />
-                <span>Explore Portfolio</span>
-              </Button>
-            </Link>
-            
-            <Link href="/services">
-              <Button variant="outline" size="lg" className="w-full h-auto py-4 flex flex-col gap-2" data-testid="button-services">
-                <DollarSign className="h-5 w-5" />
-                <span>View Services & Pricing</span>
-              </Button>
-            </Link>
-            
-            <Link href="/booking">
-              <Button variant="outline" size="lg" className="w-full h-auto py-4 flex flex-col gap-2" data-testid="button-availability">
-                <Clock className="h-5 w-5" />
-                <span>Check Availability</span>
-              </Button>
-            </Link>
-            
-            <Link href="/contact">
-              <Button variant="outline" size="lg" className="w-full h-auto py-4 flex flex-col gap-2" data-testid="button-contact">
-                <Phone className="h-5 w-5" />
-                <span>Contact Us</span>
-              </Button>
-            </Link>
-          </div>
         </Card>
         
       </div>
