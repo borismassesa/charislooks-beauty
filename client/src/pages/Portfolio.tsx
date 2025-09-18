@@ -20,8 +20,8 @@ export default function Portfolio() {
         </div>
         
         {/* Content */}
-        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="max-w-4xl mx-auto">
+        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="max-w-4xl text-left">
 
             {/* Main Heading */}
             <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-6 leading-tight drop-shadow-2xl">
@@ -30,20 +30,20 @@ export default function Portfolio() {
             </h1>
 
             {/* Subheading */}
-            <p className="text-lg sm:text-xl text-white/90 mb-8 max-w-3xl mx-auto leading-relaxed drop-shadow-lg">
+            <p className="text-lg sm:text-xl text-white/90 mb-8 max-w-3xl leading-relaxed drop-shadow-lg">
               Explore our collection of stunning beauty transformations. From elegant bridal looks to bold evening styles, 
               each creation tells a unique story of artistry and expertise that enhances natural beauty.
             </p>
 
             {/* Decorative Elements */}
-            <div className="flex items-center justify-center gap-4 mb-8">
-              <div className="h-px bg-gradient-to-r from-transparent via-white/30 to-transparent flex-1 max-w-24"></div>
+            <div className="flex items-center gap-4 mb-8">
+              <div className="h-px bg-gradient-to-r from-transparent via-white/30 to-white/30 flex-1 max-w-24"></div>
               <Palette className="h-6 w-6 text-ring" />
-              <div className="h-px bg-gradient-to-r from-transparent via-white/30 to-transparent flex-1 max-w-24"></div>
+              <div className="h-px bg-gradient-to-r from-white/30 via-white/30 to-transparent flex-1 max-w-24"></div>
             </div>
 
             {/* CTA Button */}
-            <div className="flex justify-center">
+            <div className="flex justify-start">
               <Link href="/booking">
                 <Button 
                   size="lg" 
