@@ -37,6 +37,29 @@ export default function AboutSection() {
               </p>
             </div>
 
+            {/* Specialties */}
+            <div className="mb-8">
+              <h3 className="font-semibold text-xl mb-4">Our Specialties</h3>
+              <div className="grid grid-cols-2 gap-3">
+                <Badge variant="outline" className="justify-start p-3">
+                  <Award className="h-4 w-4 mr-2 text-ring" />
+                  Bridal Hair & Makeup
+                </Badge>
+                <Badge variant="outline" className="justify-start p-3">
+                  <Star className="h-4 w-4 mr-2 text-ring" />
+                  Special Event Styling
+                </Badge>
+                <Badge variant="outline" className="justify-start p-3">
+                  <Users className="h-4 w-4 mr-2 text-ring" />
+                  Group Bookings
+                </Badge>
+                <Badge variant="outline" className="justify-start p-3">
+                  <Clock className="h-4 w-4 mr-2 text-ring" />
+                  Photography Makeup
+                </Badge>
+              </div>
+            </div>
+
           </div>
 
           {/* Image */}
