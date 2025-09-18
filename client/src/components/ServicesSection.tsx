@@ -1,6 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Clock, DollarSign, Star, Calendar, Loader2 } from 'lucide-react'
 import { Link } from 'wouter'
 import { useQuery } from '@tanstack/react-query'
@@ -17,6 +18,28 @@ export default function ServicesSection() {
     }
   })
 
+  // Filter functions for each category
+  const getMakeupServices = (services: Service[]) => {
+    return services.filter(service => 
+      ['everyday', 'event', 'lesson', 'group'].includes(service.category.toLowerCase()) ||
+      (service.category.toLowerCase() === 'bridal' && service.name.toLowerCase().includes('makeup'))
+    )
+  }
+
+  const getHairServices = (services: Service[]) => {
+    return services.filter(service => 
+      service.category.toLowerCase() === 'hair' ||
+      (service.category.toLowerCase() === 'bridal' && service.name.toLowerCase().includes('hair'))
+    )
+  }
+
+  const getPackageServices = (services: Service[]) => {
+    return services.filter(service => 
+      service.category.toLowerCase() === 'package' ||
+      (service.category.toLowerCase() === 'bridal' && service.name.toLowerCase().includes('package'))
+    )
+  }
+
   const formatDuration = (minutes: number) => {
     const hours = Math.floor(minutes / 60)
     const mins = minutes % 60
@@ -24,6 +47,64 @@ export default function ServicesSection() {
     if (mins === 0) return `${hours}h`
     return `${hours}h ${mins}min`
   }
+
+  // Component to render services grid
+  const ServicesGrid = ({ services, tabName }: { services: Service[], tabName: string }) => (
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {services.map((service, index) => (
+        <Card key={service.id} className="relative hover-elevate group" data-testid={`card-service-${tabName.toLowerCase()}-${service.id}`}>
+          {(service.category === 'bridal' || index === 0) && (
+            <div className="absolute -top-3 left-6">
+              <Badge className="bg-ring text-white">
+                <Star className="w-3 h-3 mr-1 fill-current" />
+                Popular
+              </Badge>
+            </div>
+          )}
+          
+          <CardHeader className="pb-4">
+            <CardTitle className="text-xl font-serif">{service.name}</CardTitle>
+            <p className="text-muted-foreground text-sm leading-relaxed">
+              {service.description}
+            </p>
+          </CardHeader>
+
+          <CardContent className="pt-0">
+            {/* Price and Duration */}
+            <div className="flex items-center justify-between mb-4 p-3 bg-muted/50 rounded-md">
+              <div className="flex items-center space-x-2">
+                <Clock className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm font-medium">{formatDuration(service.duration)}</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <DollarSign className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm font-medium">${service.price}</span>
+              </div>
+            </div>
+
+            {/* Category Badge */}
+            <div className="mb-6">
+              <Badge variant="outline" className="capitalize">
+                {service.category}
+              </Badge>
+            </div>
+
+            {/* CTA Button */}
+            <Link href="/booking">
+              <Button 
+                className="w-full" 
+                variant={(service.category === 'bridal' || index === 0) ? 'default' : 'outline'}
+                data-testid={`button-book-${service.id}`}
+              >
+                <Calendar className="w-4 h-4 mr-2" />
+                Book Now
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      ))}
+    </div>
+  )
 
   return (
     <section className="py-16 lg:py-24 bg-muted/30">
@@ -38,7 +119,7 @@ export default function ServicesSection() {
           </p>
         </div>
 
-        {/* Services Grid */}
+        {/* Services Tabs */}
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin" />
@@ -49,60 +130,49 @@ export default function ServicesSection() {
             <p className="text-muted-foreground">Failed to load services. Please try again later.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {services.map((service, index) => (
-              <Card key={service.id} className="relative hover-elevate group">
-                {(service.category === 'bridal' || index === 0) && (
-                  <div className="absolute -top-3 left-6">
-                    <Badge className="bg-ring text-white">
-                      <Star className="w-3 h-3 mr-1 fill-current" />
-                      Popular
-                    </Badge>
-                  </div>
-                )}
-                
-                <CardHeader className="pb-4">
-                  <CardTitle className="text-xl font-serif">{service.name}</CardTitle>
-                  <p className="text-muted-foreground text-sm leading-relaxed">
-                    {service.description}
-                  </p>
-                </CardHeader>
+          <Tabs defaultValue="makeup" className="w-full" data-testid="tabs-services">
+            <TabsList className="grid w-full grid-cols-3 mb-8 max-w-md mx-auto">
+              <TabsTrigger value="makeup" data-testid="tab-trigger-makeup">
+                Makeup
+              </TabsTrigger>
+              <TabsTrigger value="hair" data-testid="tab-trigger-hair">
+                Hair
+              </TabsTrigger>
+              <TabsTrigger value="packages" data-testid="tab-trigger-packages">
+                Packages
+              </TabsTrigger>
+            </TabsList>
 
-                <CardContent className="pt-0">
-                  {/* Price and Duration */}
-                  <div className="flex items-center justify-between mb-4 p-3 bg-muted/50 rounded-md">
-                    <div className="flex items-center space-x-2">
-                      <Clock className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm font-medium">{formatDuration(service.duration)}</span>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <DollarSign className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm font-medium">${service.price}</span>
-                    </div>
-                  </div>
+            <TabsContent value="makeup" data-testid="tab-content-makeup">
+              {getMakeupServices(services).length > 0 ? (
+                <ServicesGrid services={getMakeupServices(services)} tabName="Makeup" />
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground">No makeup services available at the moment.</p>
+                </div>
+              )}
+            </TabsContent>
 
-                  {/* Category Badge */}
-                  <div className="mb-6">
-                    <Badge variant="outline" className="capitalize">
-                      {service.category}
-                    </Badge>
-                  </div>
+            <TabsContent value="hair" data-testid="tab-content-hair">
+              {getHairServices(services).length > 0 ? (
+                <ServicesGrid services={getHairServices(services)} tabName="Hair" />
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground">No hair services available at the moment.</p>
+                </div>
+              )}
+            </TabsContent>
 
-                  {/* CTA Button */}
-                  <Link href="/booking">
-                    <Button 
-                      className="w-full" 
-                      variant={(service.category === 'bridal' || index === 0) ? 'default' : 'outline'}
-                      data-testid={`button-book-${service.id}`}
-                    >
-                      <Calendar className="w-4 h-4 mr-2" />
-                      Book Now
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+            <TabsContent value="packages" data-testid="tab-content-packages">
+              {getPackageServices(services).length > 0 ? (
+                <ServicesGrid services={getPackageServices(services)} tabName="Packages" />
+              ) : (
+                <div className="text-center py-12">
+                  <p className="text-muted-foreground">No package services available at the moment.</p>
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
         )}
 
         {/* Contact for Custom Services */}
