@@ -1,6 +1,6 @@
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Calendar } from 'lucide-react'
+import { Eye } from 'lucide-react'
 import { Link } from 'wouter'
 import { SiInstagram, SiFacebook, SiTiktok } from 'react-icons/si'
 
@@ -11,24 +11,24 @@ export default function StatsSection() {
         
         <Card className="p-8 text-center">
           {/* Headline */}
-          <h2 className="font-serif text-3xl font-bold mb-4">Ready to Transform Your Look?</h2>
+          <h2 className="font-serif text-3xl font-bold mb-4">See Our Beautiful Work</h2>
           <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
-            From bridal perfection to everyday glamour, let's create something beautiful together.
+            Browse our portfolio of stunning transformations and get inspired for your next look.
           </p>
 
           {/* Primary CTA */}
           <div className="mb-6">
-            <Link href="/booking">
-              <Button size="lg" className="bg-white hover:bg-white/90 text-black text-lg px-8 py-4" data-testid="button-book-now">
-                <Calendar className="h-5 w-5 mr-2" />
-                Book Your Appointment
+            <Link href="/portfolio">
+              <Button size="lg" className="bg-white hover:bg-white/90 text-black text-lg px-8 py-4" data-testid="button-view-portfolio">
+                <Eye className="h-5 w-5 mr-2" />
+                View Our Portfolio
               </Button>
             </Link>
           </div>
 
           {/* Social Proof */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <span className="text-muted-foreground text-sm">Or see our work first:</span>
+            <span className="text-muted-foreground text-sm">Follow us for daily inspiration:</span>
             <div className="flex items-center gap-3">
               <a
                 href="https://instagram.com/charislooks"
