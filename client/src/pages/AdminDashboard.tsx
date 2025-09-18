@@ -26,12 +26,51 @@ import {
   Briefcase,
 } from "lucide-react";
 
-// Import admin sub-pages
-import AdminServices from "./admin/AdminServices";
-import AdminPortfolio from "./admin/AdminPortfolio";
-import AdminAppointments from "./admin/AdminAppointments";
-import AdminMessages from "./admin/AdminMessages";
-import AdminOverview from "./admin/AdminOverview";
+// Simple admin components for now
+function AdminOverview() {
+  return (
+    <div>
+      <h2 className="text-2xl font-bold mb-4">Dashboard Overview</h2>
+      <p>Welcome to the admin panel. Use the sidebar to navigate.</p>
+    </div>
+  );
+}
+
+function AdminServices() {
+  return (
+    <div>
+      <h2 className="text-2xl font-bold mb-4">Manage Services</h2>
+      <p>Service management coming soon.</p>
+    </div>
+  );
+}
+
+function AdminPortfolio() {
+  return (
+    <div>
+      <h2 className="text-2xl font-bold mb-4">Manage Portfolio</h2>
+      <p>Portfolio management coming soon.</p>
+    </div>
+  );
+}
+
+function AdminAppointments() {
+  return (
+    <div>
+      <h2 className="text-2xl font-bold mb-4">Manage Appointments</h2>
+      <p>Appointment management coming soon.</p>
+    </div>
+  );
+}
+
+function AdminMessages() {
+  return (
+    <div>
+      <h2 className="text-2xl font-bold mb-4">Manage Messages</h2>
+      <p>Message management coming soon.</p>
+    </div>
+  );
+}
 
 const menuItems = [
   {
@@ -67,9 +106,7 @@ function AdminSidebar() {
   
   const logoutMutation = useMutation({
     mutationFn: async () => {
-      return apiRequest("/api/admin/logout", {
-        method: "POST"
-      });
+      return apiRequest("POST", "/api/admin/logout");
     },
     onSuccess: () => {
       toast({ title: "Logged out successfully" });
@@ -152,7 +189,7 @@ export default function AdminDashboard() {
     );
   }
   
-  if (!data || !data.authenticated) {
+  if (!data || !(data as any).authenticated) {
     return null;
   }
 
@@ -172,7 +209,7 @@ export default function AdminDashboard() {
               <h1 className="text-2xl font-semibold">Admin Panel</h1>
             </div>
             <div className="text-sm text-muted-foreground">
-              Welcome, {data.admin.username}
+              Welcome, {(data as any).admin?.username || 'Admin'}
             </div>
           </header>
           <main className="flex-1 overflow-auto p-6">
