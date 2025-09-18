@@ -3,6 +3,7 @@ import PortfolioGallery from '@/components/PortfolioGallery'
 import ServicesSection from '@/components/ServicesSection'
 import AboutSection from '@/components/AboutSection'
 import ContactSection from '@/components/ContactSection'
+import Footer from '@/components/Footer'
 
 export default function Home() {
   return (
@@ -12,6 +13,7 @@ export default function Home() {
       <PortfolioGallery />
       <ServicesSection />
       <ContactSection />
+      <Footer />
     </div>
   )
 }
