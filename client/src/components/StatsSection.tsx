@@ -5,7 +5,7 @@ import { Link } from 'wouter'
 
 export default function StatsSection() {
   return (
-    <section className="py-16 lg:py-24 bg-muted/30">
+    <section className="py-16 lg:py-24">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <Card className="p-8 text-center">
