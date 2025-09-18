@@ -28,10 +28,7 @@ export default function AdminLogin() {
 
   const loginMutation = useMutation({
     mutationFn: async (data: LoginForm) => {
-      return apiRequest("/api/admin/login", {
-        method: "POST",
-        body: JSON.stringify(data)
-      });
+      return apiRequest("POST", "/api/admin/login", data);
     },
     onSuccess: () => {
       toast({ title: "Login successful", description: "Redirecting to admin panel..." });
