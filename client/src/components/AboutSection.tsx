@@ -43,7 +43,7 @@ export default function AboutSection() {
               <div className="grid grid-cols-2 gap-3">
                 <Badge variant="outline" className="justify-start p-3">
                   <Award className="h-4 w-4 mr-2 text-ring" />
-                  Hair Cutting & Styling
+                  Hair Styling & Braiding
                 </Badge>
                 <Badge variant="outline" className="justify-start p-3">
                   <Star className="h-4 w-4 mr-2 text-ring" />

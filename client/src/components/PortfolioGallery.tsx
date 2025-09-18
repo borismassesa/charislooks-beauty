@@ -35,11 +35,11 @@ const portfolioItems = [
   },
   {
     id: 4,
-    title: 'Precision Cut & Color',
+    title: 'Braided Elegance & Color',
     category: 'Hair Styling',
     image: bridalImage,
-    description: 'Expert precision cutting and creative coloring to create your perfect new look.',
-    tags: ['Hair Cut', 'Color', 'Styling']
+    description: 'Beautiful braided styles with creative coloring techniques to create your perfect new look.',
+    tags: ['Braiding', 'Color', 'Styling']
   },
   {
     id: 5,
