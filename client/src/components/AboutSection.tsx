@@ -38,41 +38,41 @@ export default function AboutSection() {
             </div>
 
             {/* Stats Cards */}
-            <div className="grid grid-cols-2 gap-4 mb-10">
-              <Card className="text-center p-6 bg-gradient-to-br from-ring/5 to-ring/10 border-ring/20">
-                <Users className="h-8 w-8 text-ring mx-auto mb-3" />
-                <div className="text-3xl font-bold text-ring mb-1">1000+</div>
-                <div className="text-sm font-medium text-muted-foreground">Happy Clients</div>
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+              <Card className="text-center p-4 bg-gradient-to-br from-ring/5 to-ring/10 border-ring/20">
+                <Users className="h-6 w-6 text-ring mx-auto mb-2" />
+                <div className="text-2xl font-bold text-ring mb-1">1000+</div>
+                <div className="text-xs font-medium text-muted-foreground">Happy Clients</div>
               </Card>
-              <Card className="text-center p-6 bg-gradient-to-br from-ring/5 to-ring/10 border-ring/20">
-                <Award className="h-8 w-8 text-ring mx-auto mb-3" />
-                <div className="text-3xl font-bold text-ring mb-1">8+</div>
-                <div className="text-sm font-medium text-muted-foreground">Years Experience</div>
+              <Card className="text-center p-4 bg-gradient-to-br from-ring/5 to-ring/10 border-ring/20">
+                <Award className="h-6 w-6 text-ring mx-auto mb-2" />
+                <div className="text-2xl font-bold text-ring mb-1">8+</div>
+                <div className="text-xs font-medium text-muted-foreground">Years Experience</div>
               </Card>
-              <Card className="text-center p-6 bg-gradient-to-br from-ring/5 to-ring/10 border-ring/20">
-                <Star className="h-8 w-8 text-ring mx-auto mb-3" />
-                <div className="text-3xl font-bold text-ring mb-1">4.9</div>
-                <div className="text-sm font-medium text-muted-foreground">Average Rating</div>
+              <Card className="text-center p-4 bg-gradient-to-br from-ring/5 to-ring/10 border-ring/20">
+                <Star className="h-6 w-6 text-ring mx-auto mb-2" />
+                <div className="text-2xl font-bold text-ring mb-1">4.9</div>
+                <div className="text-xs font-medium text-muted-foreground">Average Rating</div>
               </Card>
-              <Card className="text-center p-6 bg-gradient-to-br from-ring/5 to-ring/10 border-ring/20">
-                <Clock className="h-8 w-8 text-ring mx-auto mb-3" />
-                <div className="text-3xl font-bold text-ring mb-1">200+</div>
-                <div className="text-sm font-medium text-muted-foreground">Weddings & Events</div>
+              <Card className="text-center p-4 bg-gradient-to-br from-ring/5 to-ring/10 border-ring/20">
+                <Clock className="h-6 w-6 text-ring mx-auto mb-2" />
+                <div className="text-2xl font-bold text-ring mb-1">200+</div>
+                <div className="text-xs font-medium text-muted-foreground">Weddings & Events</div>
               </Card>
             </div>
 
-            {/* Specialties Card */}
-            <Card className="p-6 bg-muted/30 mb-8">
+            {/* Specialties */}
+            <div className="mb-8">
               <h3 className="font-serif text-xl font-bold mb-4 text-center">Specialties & Certifications</h3>
-              <div className="grid grid-cols-2 gap-3">
-                <Badge className="bg-ring/10 text-ring border-ring/30 justify-center py-2">Bridal Hair & Makeup</Badge>
-                <Badge className="bg-ring/10 text-ring border-ring/30 justify-center py-2">Precision Cutting</Badge>
-                <Badge className="bg-ring/10 text-ring border-ring/30 justify-center py-2">Airbrush Certified</Badge>
-                <Badge className="bg-ring/10 text-ring border-ring/30 justify-center py-2">Extensions & Volume</Badge>
-                <Badge className="bg-ring/10 text-ring border-ring/30 justify-center py-2">Editorial Styling</Badge>
-                <Badge className="bg-ring/10 text-ring border-ring/30 justify-center py-2">Photography Makeup</Badge>
+              <div className="flex flex-wrap justify-center gap-2">
+                <Badge className="bg-ring/10 text-ring border-ring/30">Bridal Hair & Makeup</Badge>
+                <Badge className="bg-ring/10 text-ring border-ring/30">Precision Cutting</Badge>
+                <Badge className="bg-ring/10 text-ring border-ring/30">Airbrush Certified</Badge>
+                <Badge className="bg-ring/10 text-ring border-ring/30">Extensions & Volume</Badge>
+                <Badge className="bg-ring/10 text-ring border-ring/30">Editorial Styling</Badge>
+                <Badge className="bg-ring/10 text-ring border-ring/30">Photography Makeup</Badge>
               </div>
-            </Card>
+            </div>
 
             {/* CTA */}
             <Link href="/booking">
