@@ -100,15 +100,15 @@ function ReviewCard({ review, isDuplicate = false }: { review: Review; isDuplica
           {[...Array(review.rating)].map((_, i) => (
             <Star
               key={i}
-              className="h-4 w-4 fill-accent text-accent"
+              className="h-5 w-5 fill-yellow-400 text-yellow-400"
             />
           ))}
         </div>
         
         {/* Customer info */}
         <div className="flex items-center">
-          <Avatar className="w-10 h-10 mr-3">
-            <AvatarFallback className="bg-accent/10 text-accent font-semibold">
+          <Avatar className="w-12 h-12 mr-3">
+            <AvatarFallback className="bg-ring text-white font-semibold text-sm">
               {review.avatar}
             </AvatarFallback>
           </Avatar>
