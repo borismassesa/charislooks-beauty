@@ -37,52 +37,42 @@ export default function AboutSection() {
               </p>
             </div>
 
-            {/* Stats */}
-            <div className="grid grid-cols-2 gap-6 mb-8">
-              <div className="text-center">
-                <div className="flex items-center justify-center w-12 h-12 bg-ring/10 rounded-lg mb-3 mx-auto">
-                  <Users className="h-6 w-6 text-ring" />
-                </div>
-                <div className="text-2xl font-bold">1000+</div>
-                <div className="text-sm text-muted-foreground">Happy Clients</div>
-              </div>
-              <div className="text-center">
-                <div className="flex items-center justify-center w-12 h-12 bg-ring/10 rounded-lg mb-3 mx-auto">
-                  <Award className="h-6 w-6 text-ring" />
-                </div>
-                <div className="text-2xl font-bold">8+</div>
-                <div className="text-sm text-muted-foreground">Years Experience</div>
-              </div>
-              <div className="text-center">
-                <div className="flex items-center justify-center w-12 h-12 bg-ring/10 rounded-lg mb-3 mx-auto">
-                  <Star className="h-6 w-6 text-ring" />
-                </div>
-                <div className="text-2xl font-bold">4.9</div>
-                <div className="text-sm text-muted-foreground">Average Rating</div>
-              </div>
-              <div className="text-center">
-                <div className="flex items-center justify-center w-12 h-12 bg-ring/10 rounded-lg mb-3 mx-auto">
-                  <Clock className="h-6 w-6 text-ring" />
-                </div>
-                <div className="text-2xl font-bold">200+</div>
-                <div className="text-sm text-muted-foreground">Weddings</div>
-              </div>
+            {/* Stats Cards */}
+            <div className="grid grid-cols-2 gap-4 mb-10">
+              <Card className="text-center p-6 bg-gradient-to-br from-ring/5 to-ring/10 border-ring/20">
+                <Users className="h-8 w-8 text-ring mx-auto mb-3" />
+                <div className="text-3xl font-bold text-ring mb-1">1000+</div>
+                <div className="text-sm font-medium text-muted-foreground">Happy Clients</div>
+              </Card>
+              <Card className="text-center p-6 bg-gradient-to-br from-ring/5 to-ring/10 border-ring/20">
+                <Award className="h-8 w-8 text-ring mx-auto mb-3" />
+                <div className="text-3xl font-bold text-ring mb-1">8+</div>
+                <div className="text-sm font-medium text-muted-foreground">Years Experience</div>
+              </Card>
+              <Card className="text-center p-6 bg-gradient-to-br from-ring/5 to-ring/10 border-ring/20">
+                <Star className="h-8 w-8 text-ring mx-auto mb-3" />
+                <div className="text-3xl font-bold text-ring mb-1">4.9</div>
+                <div className="text-sm font-medium text-muted-foreground">Average Rating</div>
+              </Card>
+              <Card className="text-center p-6 bg-gradient-to-br from-ring/5 to-ring/10 border-ring/20">
+                <Clock className="h-8 w-8 text-ring mx-auto mb-3" />
+                <div className="text-3xl font-bold text-ring mb-1">200+</div>
+                <div className="text-sm font-medium text-muted-foreground">Weddings & Events</div>
+              </Card>
             </div>
 
-            {/* Specialties */}
-            <div className="mb-8">
-              <h3 className="font-semibold mb-3">Specialties & Certifications</h3>
-              <div className="flex flex-wrap gap-2">
-                <Badge variant="outline">Bridal Hair & Makeup</Badge>
-                <Badge variant="outline">Color Specialist</Badge>
-                <Badge variant="outline">Balayage Expert</Badge>
-                <Badge variant="outline">Precision Cutting</Badge>
-                <Badge variant="outline">Airbrush Certified</Badge>
-                <Badge variant="outline">Extensions & Volume</Badge>
-                <Badge variant="outline">Editorial Styling</Badge>
-                <Badge variant="outline">Photography Makeup</Badge>
+            {/* Specialties Card */}
+            <Card className="p-6 bg-muted/30 mb-8">
+              <h3 className="font-serif text-xl font-bold mb-4 text-center">Specialties & Certifications</h3>
+              <div className="grid grid-cols-2 gap-3">
+                <Badge className="bg-ring/10 text-ring border-ring/30 justify-center py-2">Bridal Hair & Makeup</Badge>
+                <Badge className="bg-ring/10 text-ring border-ring/30 justify-center py-2">Precision Cutting</Badge>
+                <Badge className="bg-ring/10 text-ring border-ring/30 justify-center py-2">Airbrush Certified</Badge>
+                <Badge className="bg-ring/10 text-ring border-ring/30 justify-center py-2">Extensions & Volume</Badge>
+                <Badge className="bg-ring/10 text-ring border-ring/30 justify-center py-2">Editorial Styling</Badge>
+                <Badge className="bg-ring/10 text-ring border-ring/30 justify-center py-2">Photography Makeup</Badge>
               </div>
-            </div>
+            </Card>
 
             {/* CTA */}
             <Link href="/booking">
