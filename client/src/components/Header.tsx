@@ -11,7 +11,6 @@ export default function Header() {
     { name: 'Home', href: '/', icon: User },
     { name: 'Portfolio', href: '/portfolio', icon: Palette },
     { name: 'Services', href: '/services', icon: Palette },
-    { name: 'Book Now', href: '/booking', icon: Calendar },
     { name: 'Contact', href: '/contact', icon: Phone },
   ]
 
@@ -26,20 +25,33 @@ export default function Header() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
-            {navigation.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={`text-sm font-medium transition-colors hover:text-ring ${
-                  location === item.href ? 'text-ring' : 'text-muted-foreground'
-                }`}
-                data-testid={`link-${item.name.toLowerCase().replace(' ', '-')}`}
+          <div className="hidden md:flex items-center space-x-8">
+            <nav className="flex items-center space-x-8">
+              {navigation.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className={`text-sm font-medium transition-colors hover:text-ring ${
+                    location === item.href ? 'text-ring' : 'text-muted-foreground'
+                  }`}
+                  data-testid={`link-${item.name.toLowerCase().replace(' ', '-')}`}
+                >
+                  {item.name}
+                </Link>
+              ))}
+            </nav>
+            
+            {/* Book Now Button */}
+            <Link href="/booking">
+              <Button 
+                className="bg-ring hover:bg-ring/90 text-white"
+                data-testid="button-book-now"
               >
-                {item.name}
-              </Link>
-            ))}
-          </nav>
+                <Calendar className="h-4 w-4 mr-2" />
+                Book Now
+              </Button>
+            </Link>
+          </div>
 
           {/* Mobile Menu Button */}
           <Button
@@ -73,6 +85,17 @@ export default function Header() {
                   <span>{item.name}</span>
                 </Link>
               ))}
+              
+              {/* Mobile Book Now Button */}
+              <Link href="/booking" onClick={() => setIsMenuOpen(false)}>
+                <Button 
+                  className="w-full bg-ring hover:bg-ring/90 text-white mt-2"
+                  data-testid="mobile-button-book-now"
+                >
+                  <Calendar className="h-4 w-4 mr-2" />
+                  Book Now
+                </Button>
+              </Link>
             </nav>
           </div>
         )}
