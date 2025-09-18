@@ -6,30 +6,30 @@ export default function Footer() {
   return (
     <footer className="bg-background border-t border-border">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col sm:flex-row justify-between items-center gap-6">
-          {/* Copyright and Legal Links */}
-          <div className="text-center sm:text-left">
-            <div className="flex flex-col sm:flex-row items-center gap-4">
-              <div className="flex items-center gap-4 text-xs">
-                <a 
-                  href="/privacy" 
-                  className="text-muted-foreground hover:text-ring transition-colors duration-200"
-                  data-testid="link-privacy"
-                >
-                  Privacy Policy
-                </a>
-                <a 
-                  href="/cookies" 
-                  className="text-muted-foreground hover:text-ring transition-colors duration-200"
-                  data-testid="link-cookies"
-                >
-                  Cookies
-                </a>
-              </div>
-              <p className="text-muted-foreground text-sm">
-                © {currentYear} CharisLooks. All rights reserved.
-              </p>
-            </div>
+        <div className="flex flex-col lg:flex-row justify-between items-center gap-6">
+          {/* Legal Links */}
+          <div className="flex items-center gap-4 text-xs">
+            <a 
+              href="/privacy" 
+              className="text-muted-foreground hover:text-ring transition-colors duration-200"
+              data-testid="link-privacy"
+            >
+              Privacy Policy
+            </a>
+            <a 
+              href="/cookies" 
+              className="text-muted-foreground hover:text-ring transition-colors duration-200"
+              data-testid="link-cookies"
+            >
+              Cookies
+            </a>
+          </div>
+
+          {/* Copyright - Center */}
+          <div className="text-center">
+            <p className="text-muted-foreground text-sm">
+              © {currentYear} CharisLooks. All rights reserved.
+            </p>
           </div>
 
           {/* Social Media Links */}
