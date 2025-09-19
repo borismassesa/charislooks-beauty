@@ -200,6 +200,84 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Enhanced appointment management routes
+  app.get("/api/appointments/search", async (req, res) => {
+    try {
+      const filters = {
+        clientName: req.query.clientName as string,
+        status: req.query.status as string,
+        serviceId: req.query.serviceId as string,
+        startDate: req.query.startDate as string,
+        endDate: req.query.endDate as string
+      };
+      
+      const appointments = await storage.searchAppointments(filters);
+      res.json(appointments);
+    } catch (error) {
+      console.error("Error searching appointments:", error);
+      res.status(500).json({ error: "Failed to search appointments" });
+    }
+  });
+
+  app.get("/api/appointments/range/:startDate/:endDate", async (req, res) => {
+    try {
+      const appointments = await storage.getAppointmentsByDateRange(
+        req.params.startDate,
+        req.params.endDate
+      );
+      res.json(appointments);
+    } catch (error) {
+      console.error("Error fetching appointments by date range:", error);
+      res.status(500).json({ error: "Failed to fetch appointments" });
+    }
+  });
+
+  app.patch("/api/appointments/:id/status", async (req, res) => {
+    try {
+      const { status } = req.body;
+      if (!status) {
+        return res.status(400).json({ error: "Status is required" });
+      }
+      
+      const appointment = await storage.updateAppointmentStatus(req.params.id, status);
+      if (!appointment) {
+        return res.status(404).json({ error: "Appointment not found" });
+      }
+      res.json(appointment);
+    } catch (error) {
+      console.error("Error updating appointment status:", error);
+      res.status(500).json({ error: "Failed to update appointment status" });
+    }
+  });
+
+  app.patch("/api/appointments/bulk/status", async (req, res) => {
+    try {
+      const { appointmentIds, status } = req.body;
+      if (!appointmentIds || !Array.isArray(appointmentIds) || !status) {
+        return res.status(400).json({ error: "appointmentIds array and status are required" });
+      }
+      
+      const updatedAppointments = await storage.bulkUpdateAppointmentStatus(appointmentIds, status);
+      res.json(updatedAppointments);
+    } catch (error) {
+      console.error("Error bulk updating appointment status:", error);
+      res.status(500).json({ error: "Failed to bulk update appointment status" });
+    }
+  });
+
+  app.get("/api/appointments/analytics", async (req, res) => {
+    try {
+      const startDate = req.query.startDate as string;
+      const endDate = req.query.endDate as string;
+      
+      const analytics = await storage.getAppointmentAnalytics(startDate, endDate);
+      res.json(analytics);
+    } catch (error) {
+      console.error("Error fetching appointment analytics:", error);
+      res.status(500).json({ error: "Failed to fetch appointment analytics" });
+    }
+  });
+
   // Portfolio routes
   app.get("/api/portfolio", async (req, res) => {
     try {

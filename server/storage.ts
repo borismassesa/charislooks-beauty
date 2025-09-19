@@ -23,9 +23,30 @@ export interface IStorage {
   getAppointments(): Promise<Appointment[]>;
   getAppointment(id: string): Promise<Appointment | undefined>;
   getAppointmentsByDate(date: string): Promise<Appointment[]>;
+  getAppointmentsByDateRange(startDate: string, endDate: string): Promise<Appointment[]>;
+  searchAppointments(filters: {
+    clientName?: string;
+    status?: string;
+    serviceId?: string;
+    startDate?: string;
+    endDate?: string;
+  }): Promise<Appointment[]>;
   createAppointment(appointment: InsertAppointment): Promise<Appointment>;
-  updateAppointment(id: string, appointment: Partial<InsertAppointment>): Promise<Appointment | undefined>;
+  updateAppointment(id: string, appointment: Partial<Appointment>): Promise<Appointment | undefined>;
+  updateAppointmentStatus(id: string, status: string): Promise<Appointment | undefined>;
+  bulkUpdateAppointmentStatus(ids: string[], status: string): Promise<Appointment[]>;
   deleteAppointment(id: string): Promise<boolean>;
+  getAppointmentAnalytics(startDate?: string, endDate?: string): Promise<{
+    totalAppointments: number;
+    confirmed: number;
+    completed: number;
+    cancelled: number;
+    noShows: number;
+    totalRevenue: number;
+    popularServices: { serviceId: string; serviceName: string; count: number; }[];
+    popularTimeSlots: { hour: number; count: number; }[];
+    clientRetention: { returning: number; new: number; };
+  }>;
   
   // Portfolio
   getPortfolioItems(): Promise<PortfolioItem[]>;
@@ -175,13 +196,178 @@ export class MemStorage implements IStorage {
     return appointment;
   }
 
-  async updateAppointment(id: string, appointmentUpdate: Partial<InsertAppointment>): Promise<Appointment | undefined> {
+  async updateAppointment(id: string, appointmentUpdate: Partial<Appointment>): Promise<Appointment | undefined> {
     const appointment = this.appointments.get(id);
     if (!appointment) return undefined;
     
     const updatedAppointment = { ...appointment, ...appointmentUpdate };
     this.appointments.set(id, updatedAppointment);
     return updatedAppointment;
+  }
+
+  async updateAppointmentStatus(id: string, status: string): Promise<Appointment | undefined> {
+    const appointment = this.appointments.get(id);
+    if (!appointment) return undefined;
+    
+    const updatedAppointment = { ...appointment, status };
+    this.appointments.set(id, updatedAppointment);
+    return updatedAppointment;
+  }
+
+  async bulkUpdateAppointmentStatus(ids: string[], status: string): Promise<Appointment[]> {
+    const updatedAppointments: Appointment[] = [];
+    
+    for (const id of ids) {
+      const appointment = await this.updateAppointmentStatus(id, status);
+      if (appointment) {
+        updatedAppointments.push(appointment);
+      }
+    }
+    
+    return updatedAppointments;
+  }
+
+  async getAppointmentsByDateRange(startDate: string, endDate: string): Promise<Appointment[]> {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    
+    return Array.from(this.appointments.values()).filter(apt => {
+      const aptDate = new Date(apt.appointmentDate);
+      return aptDate >= start && aptDate <= end;
+    }).sort((a, b) => a.appointmentDate.getTime() - b.appointmentDate.getTime());
+  }
+
+  async searchAppointments(filters: {
+    clientName?: string;
+    status?: string;
+    serviceId?: string;
+    startDate?: string;
+    endDate?: string;
+  }): Promise<Appointment[]> {
+    let appointments = Array.from(this.appointments.values());
+    
+    if (filters.clientName) {
+      const searchTerm = filters.clientName.toLowerCase();
+      appointments = appointments.filter(apt => 
+        apt.clientName.toLowerCase().includes(searchTerm) ||
+        apt.clientEmail.toLowerCase().includes(searchTerm)
+      );
+    }
+    
+    if (filters.status) {
+      appointments = appointments.filter(apt => apt.status === filters.status);
+    }
+    
+    if (filters.serviceId) {
+      appointments = appointments.filter(apt => apt.serviceId === filters.serviceId);
+    }
+    
+    if (filters.startDate && filters.endDate) {
+      const start = new Date(filters.startDate);
+      const end = new Date(filters.endDate);
+      appointments = appointments.filter(apt => {
+        const aptDate = new Date(apt.appointmentDate);
+        return aptDate >= start && aptDate <= end;
+      });
+    }
+    
+    return appointments.sort((a, b) => a.appointmentDate.getTime() - b.appointmentDate.getTime());
+  }
+
+  async getAppointmentAnalytics(startDate?: string, endDate?: string): Promise<{
+    totalAppointments: number;
+    confirmed: number;
+    completed: number;
+    cancelled: number;
+    noShows: number;
+    totalRevenue: number;
+    popularServices: { serviceId: string; serviceName: string; count: number; }[];
+    popularTimeSlots: { hour: number; count: number; }[];
+    clientRetention: { returning: number; new: number; };
+  }> {
+    let appointments = Array.from(this.appointments.values());
+    
+    // Filter by date range if provided
+    if (startDate && endDate) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      appointments = appointments.filter(apt => {
+        const aptDate = new Date(apt.appointmentDate);
+        return aptDate >= start && aptDate <= end;
+      });
+    }
+    
+    // Basic stats
+    const totalAppointments = appointments.length;
+    const confirmed = appointments.filter(apt => apt.status === 'confirmed').length;
+    const completed = appointments.filter(apt => apt.status === 'completed').length;
+    const cancelled = appointments.filter(apt => apt.status === 'cancelled').length;
+    const noShows = appointments.filter(apt => apt.status === 'no-show').length;
+    
+    // Calculate revenue for completed appointments
+    let totalRevenue = 0;
+    const completedAppointments = appointments.filter(apt => apt.status === 'completed');
+    for (const apt of completedAppointments) {
+      const service = await this.getService(apt.serviceId);
+      if (service) {
+        totalRevenue += parseFloat(service.price);
+      }
+    }
+    
+    // Popular services
+    const serviceCount = new Map<string, { name: string; count: number }>();
+    for (const apt of appointments) {
+      const service = await this.getService(apt.serviceId);
+      if (service) {
+        const current = serviceCount.get(apt.serviceId) || { name: service.name, count: 0 };
+        serviceCount.set(apt.serviceId, { name: current.name, count: current.count + 1 });
+      }
+    }
+    
+    const popularServices = Array.from(serviceCount.entries())
+      .map(([serviceId, data]) => ({
+        serviceId,
+        serviceName: data.name,
+        count: data.count
+      }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+    
+    // Popular time slots
+    const timeSlotCount = new Map<number, number>();
+    for (const apt of appointments) {
+      const hour = new Date(apt.appointmentDate).getHours();
+      timeSlotCount.set(hour, (timeSlotCount.get(hour) || 0) + 1);
+    }
+    
+    const popularTimeSlots = Array.from(timeSlotCount.entries())
+      .map(([hour, count]) => ({ hour, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+    
+    // Client retention (simplified)
+    const clientEmails = new Set(appointments.map(apt => apt.clientEmail));
+    const clientAppointmentCounts = new Map<string, number>();
+    
+    for (const apt of appointments) {
+      const count = clientAppointmentCounts.get(apt.clientEmail) || 0;
+      clientAppointmentCounts.set(apt.clientEmail, count + 1);
+    }
+    
+    const returning = Array.from(clientAppointmentCounts.values()).filter(count => count > 1).length;
+    const newClients = clientEmails.size - returning;
+    
+    return {
+      totalAppointments,
+      confirmed,
+      completed,
+      cancelled,
+      noShows,
+      totalRevenue,
+      popularServices,
+      popularTimeSlots,
+      clientRetention: { returning, new: newClients }
+    };
   }
 
   async deleteAppointment(id: string): Promise<boolean> {
