@@ -49,10 +49,7 @@ export default function AdminPortfolio() {
 
   const createMutation = useMutation({
     mutationFn: async (data: PortfolioFormData) => {
-      return apiRequest("/api/portfolio", {
-        method: "POST",
-        body: JSON.stringify(data)
-      });
+      return apiRequest("POST", "/api/portfolio", data);
     },
     onSuccess: () => {
       toast({ title: "Portfolio item created successfully" });
@@ -70,10 +67,7 @@ export default function AdminPortfolio() {
 
   const updateMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: Partial<PortfolioFormData> }) => {
-      return apiRequest(`/api/admin/portfolio/${id}`, {
-        method: "PATCH",
-        body: JSON.stringify(data)
-      });
+      return apiRequest("PATCH", `/api/admin/portfolio/${id}`, data);
     },
     onSuccess: () => {
       toast({ title: "Portfolio item updated successfully" });
@@ -90,9 +84,7 @@ export default function AdminPortfolio() {
 
   const deleteMutation = useMutation({
     mutationFn: async (id: string) => {
-      return apiRequest(`/api/admin/portfolio/${id}`, {
-        method: "DELETE"
-      });
+      return apiRequest("DELETE", `/api/admin/portfolio/${id}`);
     },
     onSuccess: () => {
       toast({ title: "Portfolio item deleted successfully" });

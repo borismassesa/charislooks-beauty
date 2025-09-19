@@ -44,10 +44,7 @@ function ServiceDialog({ service, onClose }: { service?: Service; onClose: () =>
 
   const createMutation = useMutation({
     mutationFn: async (data: ServiceFormData) => {
-      return apiRequest("/api/admin/services", {
-        method: "POST",
-        body: JSON.stringify(data)
-      });
+      return apiRequest("POST", "/api/admin/services", data);
     },
     onSuccess: () => {
       toast({ title: "Service created successfully" });
@@ -65,10 +62,7 @@ function ServiceDialog({ service, onClose }: { service?: Service; onClose: () =>
 
   const updateMutation = useMutation({
     mutationFn: async (data: ServiceFormData) => {
-      return apiRequest(`/api/admin/services/${service!.id}`, {
-        method: "PATCH",
-        body: JSON.stringify(data)
-      });
+      return apiRequest("PATCH", `/api/admin/services/${service!.id}`, data);
     },
     onSuccess: () => {
       toast({ title: "Service updated successfully" });

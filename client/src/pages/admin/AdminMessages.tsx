@@ -15,10 +15,7 @@ export default function AdminMessages() {
 
   const updateStatusMutation = useMutation({
     mutationFn: async ({ id, status }: { id: string; status: string }) => {
-      return apiRequest(`/api/admin/contact/${id}`, {
-        method: "PATCH",
-        body: JSON.stringify({ status })
-      });
+      return apiRequest("PATCH", `/api/admin/contact/${id}`, { status });
     },
     onSuccess: () => {
       toast({ title: "Message status updated" });
