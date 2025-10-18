@@ -114,7 +114,7 @@ export default function ServicesSection() {
   )
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-8">
       {/* Services Tabs */}
       {isLoading ? (
           <div className="flex items-center justify-center py-12">
@@ -172,7 +172,7 @@ export default function ServicesSection() {
         )}
 
         {/* Contact for Custom Services */}
-        <div className="mt-16 text-center">
+        <div className="mt-16 mb-8 text-center">
           <Card className="max-w-2xl mx-auto border-0 shadow-lg bg-gradient-to-br from-card to-card/50 hover-elevate">
             <CardContent className="p-10">
               <div className="mb-4">
