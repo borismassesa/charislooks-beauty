@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 import type { Testimonial } from '@shared/schema'
 import { Card } from '@/components/ui/card'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Star, Quote } from 'lucide-react'
 
@@ -35,6 +35,9 @@ function ReviewCard({ review, isDuplicate = false }: { review: Testimonial; isDu
         {/* Customer info */}
         <div className="flex items-center">
           <Avatar className="w-12 h-12 mr-3">
+            {review.avatarUrl && (
+              <AvatarImage src={review.avatarUrl} alt={review.clientName} />
+            )}
             <AvatarFallback className="bg-ring text-white font-semibold text-sm">
               {review.avatarInitials}
             </AvatarFallback>
