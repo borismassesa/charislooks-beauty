@@ -1,76 +1,65 @@
-import { useState } from 'react'
-import { Card, CardContent } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { X, ExternalLink } from 'lucide-react'
-import bridalImage from '@assets/generated_images/Bridal_makeup_portfolio_photo_ed6ec900.png'
-import eveningImage from '@assets/generated_images/Evening_makeup_portfolio_photo_d489780d.png'
-import naturalImage from '@assets/generated_images/Natural_makeup_portfolio_photo_d7dfc25f.png'
+import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
+import { X, ExternalLink, Play } from 'lucide-react';
+import type { PortfolioItem } from '@shared/schema';
+import BeforeAfterSlider from './BeforeAfterSlider';
 
-// TODO: remove mock functionality - replace with real portfolio data
-const portfolioItems = [
-  {
-    id: 1,
-    title: 'Romantic Bridal Hair & Makeup',
-    category: 'Bridal',
-    image: bridalImage,
-    description: 'Complete bridal transformation with elegant updo and soft, romantic makeup for the perfect wedding day look.',
-    tags: ['Bridal', 'Hair Styling', 'Makeup']
-  },
-  {
-    id: 2,
-    title: 'Glamorous Evening Styling',
-    category: 'Evening',
-    image: eveningImage,
-    description: 'Bold smoky eye makeup paired with sleek hair styling for stunning evening event transformation.',
-    tags: ['Evening', 'Hair Styling', 'Makeup']
-  },
-  {
-    id: 3,
-    title: 'Textured Waves & Natural Glow',
-    category: 'Hair Styling',
-    image: naturalImage,
-    description: 'Beautiful textured waves with effortless natural makeup that enhances your everyday beauty.',
-    tags: ['Hair Styling', 'Natural', 'Waves']
-  },
-  {
-    id: 4,
-    title: 'Braided Elegance & Color',
-    category: 'Hair Styling',
-    image: bridalImage,
-    description: 'Beautiful braided styles with creative coloring techniques to create your perfect new look.',
-    tags: ['Braiding', 'Color', 'Styling']
-  },
-  {
-    id: 5,
-    title: 'Creative Editorial Looks',
-    category: 'Editorial',
-    image: eveningImage,
-    description: 'Artistic hair and makeup combinations showcasing creative techniques and bold styling choices.',
-    tags: ['Editorial', 'Creative', 'Hair & Makeup']
-  },
-  {
-    id: 6,
-    title: 'Voluminous Curls & Glam',
-    category: 'Hair Styling',
-    image: naturalImage,
-    description: 'Beautiful voluminous curls with coordinated makeup for special occasions.',
-    tags: ['Curls', 'Volume', 'Special Event']
-  }
-]
-
-const categories = ['All', 'Bridal', 'Hair Styling', 'Evening', 'Special Event', 'Editorial']
+const categories = ['All', 'Bridal', 'Hair Styling', 'Evening', 'Special Event', 'Editorial'];
 
 export default function PortfolioGallery() {
-  const [selectedCategory, setSelectedCategory] = useState('All')
-  const [selectedImage, setSelectedImage] = useState<typeof portfolioItems[0] | null>(null)
+  const [selectedCategory, setSelectedCategory] = useState('All');
+  const [selectedItem, setSelectedItem] = useState<PortfolioItem | null>(null);
+
+  const { data: portfolioItems = [], isLoading } = useQuery<PortfolioItem[]>({
+    queryKey: ['/api/portfolio'],
+  });
 
   const filteredItems = selectedCategory === 'All' 
     ? portfolioItems 
-    : portfolioItems.filter(item => item.category === selectedCategory)
+    : portfolioItems.filter(item => item.category === selectedCategory);
+
+  if (isLoading) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-wrap justify-center gap-2 mb-16">
+          {categories.map((cat) => (
+            <Skeleton key={cat} className="h-9 w-24" />
+          ))}
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {[...Array(8)].map((_, i) => (
+            <Card key={i}>
+              <CardContent className="p-0">
+                <Skeleton className="w-full h-64 rounded-t-md" />
+                <div className="p-4 space-y-2">
+                  <Skeleton className="h-6 w-20" />
+                  <Skeleton className="h-5 w-full" />
+                  <Skeleton className="h-4 w-full" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (portfolioItems.length === 0) {
+    return (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="text-center py-16">
+          <p className="text-muted-foreground text-lg">No portfolio items yet. Check back soon!</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
       {/* Category Filter */}
       <div className="flex flex-wrap justify-center gap-2 mb-16">
         {categories.map((category) => (
@@ -79,29 +68,66 @@ export default function PortfolioGallery() {
             variant={selectedCategory === category ? 'default' : 'outline'}
             size="sm"
             onClick={() => setSelectedCategory(category)}
-            data-testid={`button-category-${category.toLowerCase()}`}
+            data-testid={`button-category-${category.toLowerCase().replace(/\s+/g, '-')}`}
           >
             {category}
           </Button>
         ))}
       </div>
 
-      {/* Gallery Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Masonry Gallery Grid */}
+      <div className="columns-1 md:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6">
         {filteredItems.map((item) => (
           <Card 
             key={item.id} 
-            className="group cursor-pointer hover-elevate transition-all duration-300"
-            onClick={() => setSelectedImage(item)}
+            className="group cursor-pointer hover-elevate transition-all duration-300 break-inside-avoid"
+            onClick={() => setSelectedItem(item)}
             data-testid={`card-portfolio-${item.id}`}
           >
             <CardContent className="p-0">
               <div className="relative overflow-hidden rounded-t-md">
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
-                />
+                {item.beforeImageUrl && item.afterImageUrl ? (
+                  <>
+                    <BeforeAfterSlider 
+                      beforeImage={item.beforeImageUrl}
+                      afterImage={item.afterImageUrl}
+                      className="w-full"
+                    />
+                    <Badge 
+                      variant="secondary" 
+                      className="absolute top-3 left-3 bg-black/60 backdrop-blur-sm text-white border-white/20"
+                    >
+                      Before/After
+                    </Badge>
+                  </>
+                ) : item.videoUrl ? (
+                  <>
+                    <div className="relative w-full aspect-[4/3]">
+                      <img
+                        src={item.imageUrl}
+                        alt={item.title}
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                        <div className="w-16 h-16 bg-white/90 rounded-full flex items-center justify-center">
+                          <Play className="h-8 w-8 text-ring ml-1" />
+                        </div>
+                      </div>
+                    </div>
+                    <Badge 
+                      variant="secondary" 
+                      className="absolute top-3 left-3 bg-black/60 backdrop-blur-sm text-white border-white/20"
+                    >
+                      Video
+                    </Badge>
+                  </>
+                ) : (
+                  <img
+                    src={item.imageUrl}
+                    alt={item.title}
+                    className="w-full h-auto object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                )}
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300 flex items-center justify-center">
                   <ExternalLink className="h-6 w-6 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </div>
@@ -111,7 +137,7 @@ export default function PortfolioGallery() {
                   {item.category}
                 </Badge>
                 <h3 className="font-serif text-lg font-semibold mb-2">{item.title}</h3>
-                <p className="text-sm text-muted-foreground">{item.description}</p>
+                <p className="text-sm text-muted-foreground line-clamp-2">{item.description}</p>
               </div>
             </CardContent>
           </Card>
@@ -119,43 +145,63 @@ export default function PortfolioGallery() {
       </div>
 
       {/* Modal */}
-      {selectedImage && (
+      {selectedItem && (
         <div 
-          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4"
-          onClick={() => setSelectedImage(null)}
+          className="fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4"
+          onClick={() => setSelectedItem(null)}
         >
           <div 
-            className="relative max-w-4xl max-h-[90vh] bg-card rounded-lg overflow-hidden"
+            className="relative max-w-5xl w-full max-h-[90vh] bg-card rounded-lg overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
             <Button
               variant="ghost"
               size="icon"
               className="absolute top-4 right-4 z-10 bg-black/50 text-white hover:bg-black/70"
-              onClick={() => setSelectedImage(null)}
+              onClick={() => setSelectedItem(null)}
               data-testid="button-close-modal"
             >
               <X className="h-5 w-5" />
             </Button>
-            <img
-              src={selectedImage.image}
-              alt={selectedImage.title}
-              className="w-full h-auto max-h-[70vh] object-contain"
-            />
+
+            {/* Modal Content */}
+            {selectedItem.beforeImageUrl && selectedItem.afterImageUrl ? (
+              <div className="p-6">
+                <BeforeAfterSlider 
+                  beforeImage={selectedItem.beforeImageUrl}
+                  afterImage={selectedItem.afterImageUrl}
+                  className="w-full mb-6"
+                />
+              </div>
+            ) : selectedItem.videoUrl ? (
+              <video
+                src={selectedItem.videoUrl}
+                controls
+                className="w-full h-auto max-h-[60vh] bg-black"
+                autoPlay
+              />
+            ) : (
+              <img
+                src={selectedItem.imageUrl}
+                alt={selectedItem.title}
+                className="w-full h-auto max-h-[60vh] object-contain"
+              />
+            )}
+            
             <div className="p-6">
               <div className="flex flex-wrap gap-2 mb-3">
-                {selectedImage.tags.map((tag) => (
+                {selectedItem.tags.map((tag) => (
                   <Badge key={tag} variant="outline">
                     {tag}
                   </Badge>
                 ))}
               </div>
-              <h3 className="font-serif text-2xl font-bold mb-2">{selectedImage.title}</h3>
-              <p className="text-muted-foreground">{selectedImage.description}</p>
+              <h3 className="font-serif text-2xl font-bold mb-2">{selectedItem.title}</h3>
+              <p className="text-muted-foreground">{selectedItem.description}</p>
             </div>
           </div>
         </div>
       )}
     </div>
-  )
+  );
 }
