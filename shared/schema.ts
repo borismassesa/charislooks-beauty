@@ -36,8 +36,26 @@ export const portfolioItems = pgTable("portfolio_items", {
   description: text("description").notNull(),
   category: text("category").notNull(),
   imageUrl: text("image_url").notNull(),
+  beforeImageUrl: text("before_image_url"),
+  afterImageUrl: text("after_image_url"),
+  videoUrl: text("video_url"),
   tags: text("tags").array().notNull().default(sql`'{}'::text[]`),
   featured: boolean("featured").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const promotionalBanners = pgTable("promotional_banners", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  ctaText: text("cta_text"),
+  ctaLink: text("cta_link"),
+  backgroundColor: text("background_color").default("#340808"),
+  textColor: text("text_color").default("#ffffff"),
+  active: boolean("active").default(true).notNull(),
+  startDate: timestamp("start_date"),
+  endDate: timestamp("end_date"),
+  priority: integer("priority").default(0).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -91,6 +109,11 @@ export const insertAdminUserSchema = createInsertSchema(adminUsers).omit({
   createdAt: true,
 });
 
+export const insertPromotionalBannerSchema = createInsertSchema(promotionalBanners).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type Service = typeof services.$inferSelect;
 export type InsertService = z.infer<typeof insertServiceSchema>;
@@ -106,3 +129,6 @@ export type InsertContactMessage = z.infer<typeof insertContactMessageSchema>;
 
 export type AdminUser = typeof adminUsers.$inferSelect;
 export type InsertAdminUser = z.infer<typeof insertAdminUserSchema>;
+
+export type PromotionalBanner = typeof promotionalBanners.$inferSelect;
+export type InsertPromotionalBanner = z.infer<typeof insertPromotionalBannerSchema>;
