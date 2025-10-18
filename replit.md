@@ -8,6 +8,14 @@ The application emphasizes premium beauty brand aesthetics with elegant, minimal
 
 ## Recent Changes
 
+**October 18, 2025**: Complete appointment management system with Interac payment tracking:
+- **Intelligent Deposit Calculation**: Automatically calculates and displays 20% deposit amount for all appointments based on service pricing
+- **Interac Payment Integration**: Full support for Interac e-Transfer deposits with payment status tracking and confirmation
+- **Comprehensive Appointment UI**: Enhanced appointment list view displaying deposit amounts, payment status badges, and client payment instructions
+- **Admin Payment Management**: Quick deposit payment marking capability directly from appointment edit dialog with visual payment status indicators
+- **Payment Instructions**: Clear guidance for clients on sending Interac deposits before appointment dates
+- **Production-Ready Dashboard**: Complete analytics dashboard with revenue tracking, KPIs, interactive charts, and business intelligence features
+
 **September 18, 2025**: Major UI/UX enhancements completed:
 - **Portfolio Page Transformation**: Completely redesigned from basic layout to professional hero-style page with compelling "Artistry in Every Transformation" headline, background imagery, and engaging visual hierarchy
 - **Services Page Enhancement**: Added dramatic hero section with "Expert Beauty Services" headline, salon interior background, and professional styling matching Portfolio page design
@@ -51,7 +59,10 @@ Preferred communication style: Simple, everyday language.
 
 ### Core Data Models
 - **Services**: Beauty services with pricing, duration, and category information
-- **Appointments**: Client bookings with service association and status tracking
+- **Appointments**: Client bookings with service association, status tracking, and payment management
+  - Payment fields: `depositAmount`, `depositPaid`, `paymentStatus`, `cancellationReason`
+  - Intelligent 20% deposit calculation based on service pricing
+  - Interac e-Transfer payment tracking with status management
 - **Portfolio Items**: Showcase gallery with categorization and tagging system
 - **Contact Messages**: Client inquiries with status management
 - **Admin Users**: Administrative access with username/password authentication
