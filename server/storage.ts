@@ -564,6 +564,8 @@ export class MemStorage implements IStorage {
     const testimonial: Testimonial = {
       id: randomUUID(),
       ...insertTestimonial,
+      active: insertTestimonial.active ?? true,
+      featured: insertTestimonial.featured ?? false,
       createdAt: new Date(),
     };
     this.testimonials.set(testimonial.id, testimonial);
