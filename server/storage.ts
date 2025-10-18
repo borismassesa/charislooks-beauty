@@ -189,7 +189,11 @@ export class MemStorage implements IStorage {
       ...insertAppointment,
       id,
       notes: insertAppointment.notes ?? null,
-      status: 'confirmed',
+      status: 'pending',
+      depositAmount: insertAppointment.depositAmount ?? null,
+      depositPaid: false,
+      paymentStatus: 'unpaid',
+      cancellationReason: null,
       createdAt: new Date()
     };
     this.appointments.set(id, appointment);

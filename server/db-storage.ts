@@ -112,6 +112,179 @@ export class DrizzleStorage implements IStorage {
     const result = await db.delete(appointments).where(eq(appointments.id, id)).returning();
     return result.length > 0;
   }
+
+  async getAppointmentsByDateRange(startDate: string, endDate: string): Promise<Appointment[]> {
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    
+    const result = await db.select()
+      .from(appointments)
+      .where(
+        and(
+          gte(appointments.appointmentDate, start),
+          lt(appointments.appointmentDate, end)
+        )
+      )
+      .orderBy(appointments.appointmentDate);
+    return result;
+  }
+
+  async searchAppointments(filters: {
+    clientName?: string;
+    status?: string;
+    serviceId?: string;
+    startDate?: string;
+    endDate?: string;
+  }): Promise<Appointment[]> {
+    const { sql: dsql } = await import('drizzle-orm');
+    const { like, or } = await import('drizzle-orm');
+    
+    const conditions = [];
+    
+    if (filters.clientName) {
+      conditions.push(
+        or(
+          like(appointments.clientName, `%${filters.clientName}%`),
+          like(appointments.clientEmail, `%${filters.clientName}%`)
+        )
+      );
+    }
+    
+    if (filters.status) {
+      conditions.push(eq(appointments.status, filters.status));
+    }
+    
+    if (filters.serviceId) {
+      conditions.push(eq(appointments.serviceId, filters.serviceId));
+    }
+    
+    if (filters.startDate && filters.endDate) {
+      const start = new Date(filters.startDate);
+      const end = new Date(filters.endDate);
+      conditions.push(
+        and(
+          gte(appointments.appointmentDate, start),
+          lt(appointments.appointmentDate, end)
+        )
+      );
+    }
+    
+    const result = await db.select()
+      .from(appointments)
+      .where(conditions.length > 0 ? and(...conditions) : undefined)
+      .orderBy(appointments.appointmentDate);
+    
+    return result;
+  }
+
+  async updateAppointmentStatus(id: string, status: string): Promise<Appointment | undefined> {
+    const result = await db.update(appointments)
+      .set({ status })
+      .where(eq(appointments.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async bulkUpdateAppointmentStatus(ids: string[], status: string): Promise<Appointment[]> {
+    const { inArray } = await import('drizzle-orm');
+    const result = await db.update(appointments)
+      .set({ status })
+      .where(inArray(appointments.id, ids))
+      .returning();
+    return result;
+  }
+
+  async getAppointmentAnalytics(startDate?: string, endDate?: string): Promise<{
+    totalAppointments: number;
+    confirmed: number;
+    completed: number;
+    cancelled: number;
+    noShows: number;
+    totalRevenue: number;
+    popularServices: { serviceId: string; serviceName: string; count: number; }[];
+    popularTimeSlots: { hour: number; count: number; }[];
+    clientRetention: { returning: number; new: number; };
+  }> {
+    let appointmentsList: Appointment[] = [];
+    
+    if (startDate && endDate) {
+      appointmentsList = await this.getAppointmentsByDateRange(startDate, endDate);
+    } else {
+      appointmentsList = await this.getAppointments();
+    }
+    
+    // Basic stats
+    const totalAppointments = appointmentsList.length;
+    const confirmed = appointmentsList.filter(apt => apt.status === 'confirmed').length;
+    const completed = appointmentsList.filter(apt => apt.status === 'completed').length;
+    const cancelled = appointmentsList.filter(apt => apt.status === 'cancelled').length;
+    const noShows = appointmentsList.filter(apt => apt.status === 'no-show').length;
+    
+    // Calculate revenue for completed appointments
+    let totalRevenue = 0;
+    const completedAppointments = appointmentsList.filter(apt => apt.status === 'completed');
+    for (const apt of completedAppointments) {
+      const service = await this.getService(apt.serviceId);
+      if (service) {
+        totalRevenue += parseFloat(service.price);
+      }
+    }
+    
+    // Popular services
+    const serviceCount = new Map<string, { name: string; count: number }>();
+    for (const apt of appointmentsList) {
+      const service = await this.getService(apt.serviceId);
+      if (service) {
+        const current = serviceCount.get(apt.serviceId) || { name: service.name, count: 0 };
+        serviceCount.set(apt.serviceId, { name: current.name, count: current.count + 1 });
+      }
+    }
+    
+    const popularServices = Array.from(serviceCount.entries())
+      .map(([serviceId, data]) => ({
+        serviceId,
+        serviceName: data.name,
+        count: data.count
+      }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+    
+    // Popular time slots
+    const timeSlotCount = new Map<number, number>();
+    for (const apt of appointmentsList) {
+      const hour = new Date(apt.appointmentDate).getHours();
+      timeSlotCount.set(hour, (timeSlotCount.get(hour) || 0) + 1);
+    }
+    
+    const popularTimeSlots = Array.from(timeSlotCount.entries())
+      .map(([hour, count]) => ({ hour, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 10);
+    
+    // Client retention (simplified)
+    const clientEmails = new Set(appointmentsList.map(apt => apt.clientEmail));
+    const clientAppointmentCounts = new Map<string, number>();
+    
+    for (const apt of appointmentsList) {
+      const count = clientAppointmentCounts.get(apt.clientEmail) || 0;
+      clientAppointmentCounts.set(apt.clientEmail, count + 1);
+    }
+    
+    const returning = Array.from(clientAppointmentCounts.values()).filter(count => count > 1).length;
+    const newClients = clientEmails.size - returning;
+    
+    return {
+      totalAppointments,
+      confirmed,
+      completed,
+      cancelled,
+      noShows,
+      totalRevenue,
+      popularServices,
+      popularTimeSlots,
+      clientRetention: { returning, new: newClients }
+    };
+  }
   
   // Portfolio
   async getPortfolioItems(): Promise<PortfolioItem[]> {

@@ -22,7 +22,11 @@ export const appointments = pgTable("appointments", {
   clientPhone: text("client_phone").notNull(),
   appointmentDate: timestamp("appointment_date").notNull(),
   notes: text("notes"),
-  status: text("status").notNull().default("confirmed"), // confirmed, cancelled, completed
+  status: text("status").notNull().default("pending"), // pending, confirmed, completed, cancelled, no-show
+  depositAmount: decimal("deposit_amount", { precision: 10, scale: 2 }),
+  depositPaid: boolean("deposit_paid").default(false).notNull(),
+  paymentStatus: text("payment_status").default("unpaid").notNull(), // unpaid, deposit_paid, paid
+  cancellationReason: text("cancellation_reason"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -67,6 +71,8 @@ export const insertAppointmentSchema = createInsertSchema(appointments).omit({
   id: true,
   createdAt: true,
   status: true,
+  depositPaid: true,
+  paymentStatus: true,
 });
 
 export const insertPortfolioItemSchema = createInsertSchema(portfolioItems).omit({
