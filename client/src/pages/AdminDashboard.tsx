@@ -44,6 +44,8 @@ import AdminServices from "./admin/AdminServices";
 import AdminPortfolio from "./admin/AdminPortfolio";
 import AdminAppointments from "./admin/AdminAppointments";
 import AdminMessages from "./admin/AdminMessages";
+import AdminProfile from "./admin/AdminProfile";
+import AdminSettings from "./admin/AdminSettings";
 
 const menuItems = [
   {
@@ -155,11 +157,17 @@ function AdminSidebar({ adminUsername }: { adminUsername: string }) {
                   {adminUsername}
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem data-testid="button-profile">
+                <DropdownMenuItem 
+                  onClick={() => setLocation("/admin/dashboard/profile")}
+                  data-testid="button-profile"
+                >
                   <User className="mr-2 h-4 w-4" />
                   <span>Profile</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem data-testid="button-settings">
+                <DropdownMenuItem 
+                  onClick={() => setLocation("/admin/dashboard/settings")}
+                  data-testid="button-settings"
+                >
                   <Settings className="mr-2 h-4 w-4" />
                   <span>Settings</span>
                 </DropdownMenuItem>
@@ -242,6 +250,8 @@ export default function AdminDashboard() {
               <Route path="/admin/dashboard/portfolio" component={AdminPortfolio} />
               <Route path="/admin/dashboard/appointments" component={AdminAppointments} />
               <Route path="/admin/dashboard/messages" component={AdminMessages} />
+              <Route path="/admin/dashboard/profile" component={AdminProfile} />
+              <Route path="/admin/dashboard/settings" component={AdminSettings} />
               <Route>
                 <div>Page not found</div>
               </Route>
