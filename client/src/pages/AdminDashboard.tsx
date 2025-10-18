@@ -25,6 +25,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   Home,
@@ -78,6 +88,7 @@ const menuItems = [
 function AdminSidebar({ adminUsername }: { adminUsername: string }) {
   const [location, setLocation] = useLocation();
   const { toast } = useToast();
+  const [showLogoutDialog, setShowLogoutDialog] = useState(false);
   
   const logoutMutation = useMutation({
     mutationFn: async () => {
@@ -85,6 +96,7 @@ function AdminSidebar({ adminUsername }: { adminUsername: string }) {
     },
     onSuccess: () => {
       toast({ title: "Logged out successfully" });
+      setShowLogoutDialog(false);
       setLocation("/admin");
     }
   });
@@ -173,8 +185,7 @@ function AdminSidebar({ adminUsername }: { adminUsername: string }) {
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
-                  onClick={() => logoutMutation.mutate()}
-                  disabled={logoutMutation.isPending}
+                  onClick={() => setShowLogoutDialog(true)}
                   data-testid="button-logout"
                 >
                   <LogOut className="mr-2 h-4 w-4" />
@@ -185,6 +196,27 @@ function AdminSidebar({ adminUsername }: { adminUsername: string }) {
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>
+
+      <AlertDialog open={showLogoutDialog} onOpenChange={setShowLogoutDialog}>
+        <AlertDialogContent data-testid="dialog-logout-confirm">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirm Logout</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to log out? You'll need to log back in to access the admin panel.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel data-testid="button-cancel-logout">Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => logoutMutation.mutate()}
+              disabled={logoutMutation.isPending}
+              data-testid="button-confirm-logout"
+            >
+              {logoutMutation.isPending ? "Logging out..." : "Logout"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Sidebar>
   );
 }
