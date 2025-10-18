@@ -6,6 +6,7 @@ import {
   contactMessages,
   adminUsers,
   promotionalBanners,
+  testimonials,
   type Service, 
   type InsertService,
   type Appointment, 
@@ -17,7 +18,9 @@ import {
   type AdminUser,
   type InsertAdminUser,
   type PromotionalBanner,
-  type InsertPromotionalBanner
+  type InsertPromotionalBanner,
+  type Testimonial,
+  type InsertTestimonial
 } from "@shared/schema";
 import { IStorage } from './storage';
 import bcrypt from 'bcryptjs';
@@ -403,6 +406,34 @@ export class DrizzleStorage implements IStorage {
 
   async deleteBanner(id: string): Promise<boolean> {
     const result = await db.delete(promotionalBanners).where(eq(promotionalBanners.id, id)).returning();
+    return result.length > 0;
+  }
+  
+  // Testimonials
+  async getTestimonials(): Promise<Testimonial[]> {
+    return await db.select().from(testimonials).orderBy(desc(testimonials.createdAt));
+  }
+
+  async getTestimonial(id: string): Promise<Testimonial | undefined> {
+    const result = await db.select().from(testimonials).where(eq(testimonials.id, id)).limit(1);
+    return result.length > 0 ? result[0] : undefined;
+  }
+
+  async createTestimonial(testimonial: InsertTestimonial): Promise<Testimonial> {
+    const result = await db.insert(testimonials).values(testimonial).returning();
+    return result[0];
+  }
+
+  async updateTestimonial(id: string, testimonialUpdate: Partial<InsertTestimonial>): Promise<Testimonial | undefined> {
+    const result = await db.update(testimonials)
+      .set(testimonialUpdate)
+      .where(eq(testimonials.id, id))
+      .returning();
+    return result.length > 0 ? result[0] : undefined;
+  }
+
+  async deleteTestimonial(id: string): Promise<boolean> {
+    const result = await db.delete(testimonials).where(eq(testimonials.id, id)).returning();
     return result.length > 0;
   }
 }

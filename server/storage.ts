@@ -10,7 +10,9 @@ import {
   type AdminUser,
   type InsertAdminUser,
   type PromotionalBanner,
-  type InsertPromotionalBanner
+  type InsertPromotionalBanner,
+  type Testimonial,
+  type InsertTestimonial
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -76,6 +78,13 @@ export interface IStorage {
   createBanner(banner: InsertPromotionalBanner): Promise<PromotionalBanner>;
   updateBanner(id: string, banner: Partial<InsertPromotionalBanner>): Promise<PromotionalBanner | undefined>;
   deleteBanner(id: string): Promise<boolean>;
+  
+  // Testimonials
+  getTestimonials(): Promise<Testimonial[]>;
+  getTestimonial(id: string): Promise<Testimonial | undefined>;
+  createTestimonial(testimonial: InsertTestimonial): Promise<Testimonial>;
+  updateTestimonial(id: string, testimonial: Partial<InsertTestimonial>): Promise<Testimonial | undefined>;
+  deleteTestimonial(id: string): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -84,6 +93,7 @@ export class MemStorage implements IStorage {
   private portfolioItems: Map<string, PortfolioItem>;
   private contactMessages: Map<string, ContactMessage>;
   private adminUsers: Map<string, AdminUser>;
+  private testimonials: Map<string, Testimonial>;
 
   constructor() {
     this.services = new Map();
@@ -91,6 +101,7 @@ export class MemStorage implements IStorage {
     this.portfolioItems = new Map();
     this.contactMessages = new Map();
     this.adminUsers = new Map();
+    this.testimonials = new Map();
     
     // Initialize with default services
     this.initializeDefaultData();
@@ -538,6 +549,37 @@ export class MemStorage implements IStorage {
 
   async deleteBanner(id: string): Promise<boolean> {
     return this.banners.delete(id);
+  }
+  
+  // Testimonial methods
+  async getTestimonials(): Promise<Testimonial[]> {
+    return Array.from(this.testimonials.values());
+  }
+  
+  async getTestimonial(id: string): Promise<Testimonial | undefined> {
+    return this.testimonials.get(id);
+  }
+  
+  async createTestimonial(insertTestimonial: InsertTestimonial): Promise<Testimonial> {
+    const testimonial: Testimonial = {
+      id: randomUUID(),
+      ...insertTestimonial,
+      createdAt: new Date(),
+    };
+    this.testimonials.set(testimonial.id, testimonial);
+    return testimonial;
+  }
+  
+  async updateTestimonial(id: string, testimonialUpdate: Partial<InsertTestimonial>): Promise<Testimonial | undefined> {
+    const testimonial = this.testimonials.get(id);
+    if (!testimonial) return undefined;
+    const updated = { ...testimonial, ...testimonialUpdate };
+    this.testimonials.set(id, updated);
+    return updated;
+  }
+  
+  async deleteTestimonial(id: string): Promise<boolean> {
+    return this.testimonials.delete(id);
   }
 }
 
