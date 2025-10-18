@@ -15,7 +15,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Edit, Plus, DollarSign, Clock } from "lucide-react";
+import { Edit, Plus, DollarSign, Clock, Trash2 } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { z } from "zod";
 
 type ServiceFormData = z.infer<typeof insertServiceSchema>;
@@ -236,10 +237,31 @@ function ServiceDialog({ service, onClose }: { service?: Service; onClose: () =>
 export default function AdminServices() {
   const [selectedService, setSelectedService] = useState<Service | undefined>();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [serviceToDelete, setServiceToDelete] = useState<Service | undefined>();
   const { toast } = useToast();
   
   const { data: services, isLoading } = useQuery<Service[]>({
     queryKey: ["/api/services"]
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return apiRequest("DELETE", `/api/admin/services/${id}`);
+    },
+    onSuccess: () => {
+      toast({ title: "Service deleted successfully" });
+      queryClient.invalidateQueries({ queryKey: ["/api/services"] });
+      setDeleteDialogOpen(false);
+      setServiceToDelete(undefined);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to delete service",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
   });
 
   const handleEdit = (service: Service) => {
@@ -255,6 +277,17 @@ export default function AdminServices() {
   const handleCloseDialog = () => {
     setDialogOpen(false);
     setSelectedService(undefined);
+  };
+
+  const handleDeleteClick = (service: Service) => {
+    setServiceToDelete(service);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = () => {
+    if (serviceToDelete) {
+      deleteMutation.mutate(serviceToDelete.id);
+    }
   };
 
   return (
@@ -319,14 +352,24 @@ export default function AdminServices() {
                     </span>
                   </CardDescription>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleEdit(service)}
-                  data-testid={`button-edit-service-${service.id}`}
-                >
-                  <Edit className="w-4 h-4" />
-                </Button>
+                <div className="flex gap-1">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleEdit(service)}
+                    data-testid={`button-edit-service-${service.id}`}
+                  >
+                    <Edit className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleDeleteClick(service)}
+                    data-testid={`button-delete-service-${service.id}`}
+                  >
+                    <Trash2 className="w-4 h-4 text-destructive" />
+                  </Button>
+                </div>
               </div>
             </CardHeader>
             <CardContent>
@@ -357,6 +400,29 @@ export default function AdminServices() {
           ))
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Service</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{serviceToDelete?.name}"? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel data-testid="button-cancel-delete">Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              disabled={deleteMutation.isPending}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              data-testid="button-confirm-delete"
+            >
+              {deleteMutation.isPending ? "Deleting..." : "Delete"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

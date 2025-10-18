@@ -61,6 +61,13 @@ export class DrizzleStorage implements IStorage {
       price: result[0].price.toString()
     };
   }
+
+  async deleteService(id: string): Promise<boolean> {
+    const result = await db.delete(services)
+      .where(eq(services.id, id))
+      .returning();
+    return result.length > 0;
+  }
   
   // Appointments
   async getAppointments(): Promise<Appointment[]> {

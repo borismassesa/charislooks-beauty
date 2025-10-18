@@ -20,6 +20,7 @@ export interface IStorage {
   getService(id: string): Promise<Service | undefined>;
   createService(service: InsertService): Promise<Service>;
   updateService(id: string, service: Partial<InsertService>): Promise<Service | undefined>;
+  deleteService(id: string): Promise<boolean>;
   
   // Appointments
   getAppointments(): Promise<Appointment[]>;
@@ -172,6 +173,10 @@ export class MemStorage implements IStorage {
     const updatedService = { ...service, ...serviceUpdate };
     this.services.set(id, updatedService);
     return updatedService;
+  }
+
+  async deleteService(id: string): Promise<boolean> {
+    return this.services.delete(id);
   }
 
   // Appointments

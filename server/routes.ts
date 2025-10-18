@@ -405,6 +405,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: "Failed to update service" });
     }
   });
+
+  app.delete("/api/admin/services/:id", isAuthenticated, async (req, res) => {
+    try {
+      const deleted = await storage.deleteService(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Service not found" });
+      }
+      res.json({ message: "Service deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting service:", error);
+      res.status(500).json({ error: "Failed to delete service" });
+    }
+  });
   
   // Admin-protected routes for managing portfolio
   app.patch("/api/admin/portfolio/:id", isAuthenticated, async (req, res) => {
