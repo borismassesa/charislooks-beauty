@@ -134,22 +134,189 @@ export default function BookingCalendar() {
   const canProceedToStep3 = formData.name && formData.email && formData.phone
 
   if (isBooked) {
+    const selectedServiceDetails = services.find(s => s.id === selectedService)
+    const depositAmount = selectedServiceDetails 
+      ? (parseFloat(selectedServiceDetails.price) * 0.20).toFixed(2) 
+      : '0.00'
+
+    const resetBooking = () => {
+      setIsBooked(false)
+      setCurrentStep(1)
+      setSelectedDate('')
+      setSelectedTime('')
+      setSelectedService('')
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        notes: ''
+      })
+    }
+
     return (
-      <div className="max-w-2xl mx-auto text-center py-12">
+      <div className="max-w-3xl mx-auto py-8 px-4">
         <Card>
-          <CardContent className="p-8">
-            <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-            <h2 className="font-serif text-2xl font-bold mb-3">Booking Confirmed!</h2>
-            <p className="text-muted-foreground mb-6">
-              Thank you for booking with us. You will receive a confirmation email shortly 
-              with all the details and preparation instructions.
-            </p>
-            <div className="bg-muted/50 rounded-lg p-4 text-left">
-              <h3 className="font-semibold mb-2">Appointment Details:</h3>
-              <p><span className="font-medium">Service:</span> {services.find(s => s.id === selectedService)?.name}</p>
-              <p><span className="font-medium">Date:</span> {selectedDate}</p>
-              <p><span className="font-medium">Time:</span> {selectedTime}</p>
-              <p><span className="font-medium">Name:</span> {formData.name}</p>
+          <CardContent className="p-6 sm:p-8">
+            {/* Success Icon and Message */}
+            <div className="text-center mb-6">
+              <CheckCircle 
+                className="h-20 w-20 text-ring mx-auto mb-4" 
+                data-testid="icon-success"
+              />
+              <h2 
+                className="font-serif text-3xl sm:text-4xl font-bold mb-3 text-foreground" 
+                data-testid="heading-booking-confirmed"
+              >
+                Booking Confirmed!
+              </h2>
+              <p className="text-muted-foreground text-base sm:text-lg">
+                Thank you for choosing Charis Looks! Your appointment has been successfully reserved.
+              </p>
+            </div>
+
+            {/* Appointment Details Card */}
+            <div className="bg-muted/30 rounded-lg p-4 sm:p-6 mb-6 border border-border" data-testid="card-appointment-details">
+              <h3 className="font-serif text-xl font-bold mb-4 text-foreground">Appointment Summary</h3>
+              <div className="space-y-3">
+                <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                  <span className="text-muted-foreground font-medium">Service</span>
+                  <span className="font-semibold text-foreground" data-testid="text-service-name">
+                    {selectedServiceDetails?.name}
+                  </span>
+                </div>
+                <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                  <span className="text-muted-foreground font-medium">Service Price</span>
+                  <span className="font-semibold text-foreground" data-testid="text-service-price">
+                    ${selectedServiceDetails?.price}
+                  </span>
+                </div>
+                <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                  <span className="text-muted-foreground font-medium">Date</span>
+                  <span className="font-semibold text-foreground" data-testid="text-appointment-date">
+                    {selectedDate}
+                  </span>
+                </div>
+                <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                  <span className="text-muted-foreground font-medium">Time</span>
+                  <span className="font-semibold text-foreground" data-testid="text-appointment-time">
+                    {selectedTime}
+                  </span>
+                </div>
+                <div className="flex flex-col sm:flex-row sm:justify-between gap-1">
+                  <span className="text-muted-foreground font-medium">Client Name</span>
+                  <span className="font-semibold text-foreground" data-testid="text-client-name">
+                    {formData.name}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Prominent Deposit Payment Section */}
+            <div 
+              className="bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-950/30 dark:to-pink-950/30 rounded-lg p-6 sm:p-8 mb-6 border-2 border-rose-300 dark:border-rose-700" 
+              data-testid="section-deposit-payment"
+            >
+              {/* Large Deposit Amount */}
+              <div className="text-center mb-6">
+                <p className="text-sm font-semibold text-rose-700 dark:text-rose-300 uppercase tracking-wide mb-2">
+                  Required Deposit
+                </p>
+                <p 
+                  className="text-5xl sm:text-6xl font-bold text-rose-600 dark:text-rose-400" 
+                  data-testid="text-deposit-amount"
+                >
+                  ${depositAmount}
+                </p>
+                <p className="text-sm text-rose-600/80 dark:text-rose-400/80 mt-2">
+                  (20% of total service price)
+                </p>
+              </div>
+
+              {/* Payment Instructions */}
+              <div className="bg-white/80 dark:bg-gray-900/50 rounded-md p-5 border border-rose-200 dark:border-rose-800">
+                <h3 
+                  className="font-serif text-xl font-bold mb-4 text-rose-900 dark:text-rose-100 flex items-center gap-2" 
+                  data-testid="heading-payment-instructions"
+                >
+                  <Mail className="h-5 w-5" />
+                  Payment Instructions
+                </h3>
+                <div className="space-y-4 text-left">
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 w-7 h-7 rounded-full bg-rose-600 dark:bg-rose-500 text-white flex items-center justify-center text-sm font-bold">
+                      1
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-semibold text-foreground mb-1">Send Interac e-Transfer to:</p>
+                      <p 
+                        className="text-lg font-bold text-rose-600 dark:text-rose-400" 
+                        data-testid="text-payment-email"
+                      >
+                        contact@charislooks.com
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 w-7 h-7 rounded-full bg-rose-600 dark:bg-rose-500 text-white flex items-center justify-center text-sm font-bold">
+                      2
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-semibold text-foreground mb-1">Amount:</p>
+                      <p className="text-lg font-bold text-foreground" data-testid="text-payment-amount">
+                        ${depositAmount} <span className="text-sm font-normal text-muted-foreground">(20% deposit)</span>
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 w-7 h-7 rounded-full bg-rose-600 dark:bg-rose-500 text-white flex items-center justify-center text-sm font-bold">
+                      3
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-semibold text-foreground">
+                        Please send deposit before your appointment date
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    <div className="flex-shrink-0 w-7 h-7 rounded-full bg-rose-600 dark:bg-rose-500 text-white flex items-center justify-center text-sm font-bold">
+                      4
+                    </div>
+                    <div className="flex-1">
+                      <p className="font-semibold text-foreground mb-1">
+                        Include in the e-Transfer message:
+                      </p>
+                      <ul className="text-sm text-muted-foreground list-disc list-inside space-y-1">
+                        <li>Your appointment date: <span className="font-medium text-foreground">{selectedDate}</span></li>
+                        <li>Your name: <span className="font-medium text-foreground">{formData.name}</span></li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-5 pt-5 border-t border-rose-200 dark:border-rose-800">
+                  <p className="text-sm text-muted-foreground">
+                    <strong className="text-foreground">Note:</strong> Your appointment is confirmed once we receive your deposit. 
+                    You will receive a confirmation email shortly with all the details.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Book Another Appointment Button */}
+            <div className="text-center">
+              <Button 
+                onClick={resetBooking}
+                variant="outline"
+                size="lg"
+                className="w-full sm:w-auto"
+                data-testid="button-book-another"
+              >
+                <Calendar className="mr-2 h-5 w-5" />
+                Book Another Appointment
+              </Button>
             </div>
           </CardContent>
         </Card>
