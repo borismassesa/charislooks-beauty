@@ -358,6 +358,14 @@ export class DrizzleStorage implements IStorage {
     }).returning();
     return result[0];
   }
+
+  async updateAdmin(id: string, adminUpdate: Partial<InsertAdminUser>): Promise<AdminUser | undefined> {
+    const result = await db.update(adminUsers)
+      .set(adminUpdate)
+      .where(eq(adminUsers.id, id))
+      .returning();
+    return result[0];
+  }
 }
 
 // Initialize database with default services and admin if empty

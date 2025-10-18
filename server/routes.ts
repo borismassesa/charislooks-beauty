@@ -85,6 +85,40 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: "Failed to check authentication" });
     }
   });
+
+  app.post("/api/admin/update-password", isAuthenticated, async (req, res) => {
+    try {
+      const { currentPassword, newPassword } = req.body;
+
+      if (!currentPassword || !newPassword) {
+        return res.status(400).json({ error: "Current and new passwords are required" });
+      }
+
+      if (newPassword.length < 6) {
+        return res.status(400).json({ error: "New password must be at least 6 characters" });
+      }
+
+      const admin = await storage.getAdminById((req.session as any).adminId);
+      if (!admin) {
+        return res.status(401).json({ error: "Session invalid" });
+      }
+
+      // Verify current password
+      const isValid = await bcrypt.compare(currentPassword, admin.password);
+      if (!isValid) {
+        return res.status(401).json({ error: "Current password is incorrect" });
+      }
+
+      // Hash new password and update
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      await storage.updateAdmin(admin.id, { password: hashedPassword });
+
+      res.json({ message: "Password updated successfully" });
+    } catch (error) {
+      console.error("Password update error:", error);
+      res.status(500).json({ error: "Failed to update password" });
+    }
+  });
   // Services routes
   app.get("/api/services", async (req, res) => {
     try {

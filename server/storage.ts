@@ -65,6 +65,7 @@ export interface IStorage {
   getAdminByUsername(username: string): Promise<AdminUser | undefined>;
   getAdminById(id: string): Promise<AdminUser | undefined>;
   createAdmin(admin: InsertAdminUser): Promise<AdminUser>;
+  updateAdmin(id: string, admin: Partial<InsertAdminUser>): Promise<AdminUser | undefined>;
 }
 
 export class MemStorage implements IStorage {
@@ -466,6 +467,15 @@ export class MemStorage implements IStorage {
     };
     this.adminUsers.set(id, admin);
     return admin;
+  }
+
+  async updateAdmin(id: string, adminUpdate: Partial<InsertAdminUser>): Promise<AdminUser | undefined> {
+    const admin = this.adminUsers.get(id);
+    if (!admin) return undefined;
+    
+    const updatedAdmin = { ...admin, ...adminUpdate };
+    this.adminUsers.set(id, updatedAdmin);
+    return updatedAdmin;
   }
 }
 

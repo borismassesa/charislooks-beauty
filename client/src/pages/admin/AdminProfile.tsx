@@ -82,7 +82,10 @@ function ProfileSkeleton() {
 export default function AdminProfile() {
   const { toast } = useToast();
 
-  const { data: admin, isLoading } = useQuery({
+  const { data: admin, isLoading } = useQuery<{
+    authenticated: boolean;
+    admin: { id: string; username: string; email: string };
+  }>({
     queryKey: ["/api/admin/check"],
   });
 
