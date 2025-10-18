@@ -207,7 +207,7 @@ export default function AdminAppointments() {
   });
 
   // Data fetching
-  const { data: appointments = [], isLoading: appointmentsLoading } = useQuery({
+  const { data: appointments = [], isLoading: appointmentsLoading } = useQuery<Appointment[]>({
     queryKey: ["/api/appointments"]
   });
 
@@ -690,8 +690,11 @@ export default function AdminAppointments() {
               {filteredAppointments.length > 0 ? (
                 <div className="space-y-0">
                   {filteredAppointments.map((appointment, index) => {
-                    const service = services.find(s => s.serviceId === appointment.serviceId);
+                    const service = services.find(s => s.id === appointment.serviceId);
                     const isSelected = selectedAppointments.includes(appointment.id);
+                    
+                    // Calculate 20% deposit amount
+                    const depositAmount = service ? (parseFloat(service.price) * 0.20).toFixed(2) : '0.00';
                     
                     return (
                       <div
@@ -734,6 +737,14 @@ export default function AdminAppointments() {
                               <div className="text-sm font-medium">
                                 {service?.price ? `$${service.price}` : ''}
                               </div>
+                              <div className="text-xs text-muted-foreground mt-1">
+                                <span className="font-medium">Deposit (20%):</span> ${depositAmount} <span className="text-xs">(Interac)</span>
+                              </div>
+                              {appointment.depositPaid && (
+                                <Badge className="bg-green-500/10 text-green-500 text-xs mt-1">
+                                  Deposit Paid
+                                </Badge>
+                              )}
                             </div>
 
                             {/* Date & Time */}
@@ -1017,6 +1028,52 @@ export default function AdminAppointments() {
               data-testid="textarea-notes"
             />
           </div>
+
+          {/* Deposit Information */}
+          {formData.serviceId && (
+            <div className="p-4 bg-muted/50 rounded-lg border space-y-3">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-sm font-medium">Deposit Required (20% via Interac)</div>
+                  <div className="text-2xl font-bold text-primary">
+                    ${(() => {
+                      const service = services.find(s => s.id === formData.serviceId);
+                      return service ? (parseFloat(service.price) * 0.20).toFixed(2) : '0.00';
+                    })()}
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    Total service cost: ${(() => {
+                      const service = services.find(s => s.id === formData.serviceId);
+                      return service?.price || '0.00';
+                    })()}
+                  </div>
+                </div>
+                {editingAppointment && (
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="depositPaid"
+                      checked={editingAppointment.depositPaid}
+                      onCheckedChange={(checked) => {
+                        if (editingAppointment) {
+                          updateAppointmentMutation.mutate({
+                            id: editingAppointment.id,
+                            data: { depositPaid: checked === true }
+                          });
+                        }
+                      }}
+                      data-testid="checkbox-deposit-paid"
+                    />
+                    <Label htmlFor="depositPaid" className="text-sm font-medium cursor-pointer">
+                      Mark as Paid
+                    </Label>
+                  </div>
+                )}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                <strong>Payment Instructions:</strong> Client should send the deposit via Interac e-Transfer before the appointment date.
+              </div>
+            </div>
+          )}
 
           <DialogFooter>
             <Button
