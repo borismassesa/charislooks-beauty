@@ -328,6 +328,14 @@ export default function AdminOverview() {
             <div className="h-[350px] flex items-center justify-center">
               <Skeleton className="h-full w-full rounded-md" />
             </div>
+          ) : chartData.revenueTrends.length === 0 ? (
+            <div className="h-[350px] flex items-center justify-center">
+              <div className="text-center text-muted-foreground">
+                <DollarSign className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">No revenue data yet</p>
+                <p className="text-xs mt-1">Revenue trends will appear when you have completed appointments</p>
+              </div>
+            </div>
           ) : (
             <div className="h-[350px]">
               <ResponsiveContainer width="100%" height="100%">
@@ -383,6 +391,14 @@ export default function AdminOverview() {
               <div className="h-[300px] flex items-center justify-center">
                 <Skeleton className="h-full w-full rounded-md" />
               </div>
+            ) : chartData.appointmentDistribution.length === 0 ? (
+              <div className="h-[300px] flex items-center justify-center">
+                <div className="text-center text-muted-foreground">
+                  <Calendar className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">No appointments yet</p>
+                  <p className="text-xs mt-1">Status distribution will appear when you have bookings</p>
+                </div>
+              </div>
             ) : (
               <div className="h-[300px]">
                 <ResponsiveContainer width="100%" height="100%">
@@ -428,6 +444,14 @@ export default function AdminOverview() {
             {isLoading || !chartData ? (
               <div className="h-[300px] flex items-center justify-center">
                 <Skeleton className="h-full w-full rounded-md" />
+              </div>
+            ) : chartData.topServices.length === 0 ? (
+              <div className="h-[300px] flex items-center justify-center">
+                <div className="text-center text-muted-foreground">
+                  <Calendar className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                  <p className="text-sm">No service data yet</p>
+                  <p className="text-xs mt-1">Popular services will appear when you have bookings</p>
+                </div>
               </div>
             ) : (
               <div className="h-[300px]">
@@ -479,6 +503,14 @@ export default function AdminOverview() {
           {isLoading || !chartData ? (
             <div className="h-[350px] flex items-center justify-center">
               <Skeleton className="h-full w-full rounded-md" />
+            </div>
+          ) : chartData.bookingTrends.length === 0 ? (
+            <div className="h-[350px] flex items-center justify-center">
+              <div className="text-center text-muted-foreground">
+                <Calendar className="w-12 h-12 mx-auto mb-2 opacity-50" />
+                <p className="text-sm">No booking data yet</p>
+                <p className="text-xs mt-1">Booking trends will appear when you have appointments</p>
+              </div>
             </div>
           ) : (
             <div className="h-[350px]">
