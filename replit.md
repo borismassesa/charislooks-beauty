@@ -8,6 +8,15 @@ The application emphasizes premium beauty brand aesthetics with elegant, minimal
 
 ## Recent Changes
 
+**October 18, 2025 (Latest)**: Portfolio page transformation with modern beauty industry features:
+- **Before/After Image Sliders**: Interactive comparison sliders with smooth drag/touch interaction for showcasing transformations
+- **Video Hero Section**: Dynamic video background support with mobile optimization and fallback images
+- **Instagram-Style Feed**: Social proof gallery with grid layout, hover effects, and modal lightbox integration
+- **Promotional Banners**: Seasonal announcement system with dismissible banners, custom colors, and date-based activation
+- **Enhanced Gallery Layout**: Masonry grid design with category filtering, lazy loading, and support for images/videos/before-after content
+- **Database Schema Updates**: Added beforeImageUrl, afterImageUrl, videoUrl fields to portfolio_items table; created promotional_banners table
+- **Admin Banner Management**: Backend API routes for creating, updating, and deleting promotional banners
+
 **October 18, 2025**: Complete appointment management system with Interac payment tracking:
 - **Intelligent Deposit Calculation**: Automatically calculates and displays 20% deposit amount for all appointments based on service pricing
 - **Interac Payment Integration**: Full support for Interac e-Transfer deposits with payment status tracking and confirmation
@@ -63,7 +72,14 @@ Preferred communication style: Simple, everyday language.
   - Payment fields: `depositAmount`, `depositPaid`, `paymentStatus`, `cancellationReason`
   - Intelligent 20% deposit calculation based on service pricing
   - Interac e-Transfer payment tracking with status management
-- **Portfolio Items**: Showcase gallery with categorization and tagging system
+- **Portfolio Items**: Showcase gallery with categorization, tagging, and multimedia support
+  - Standard fields: `title`, `description`, `category`, `imageUrl`, `tags`, `featured`
+  - Before/After fields: `beforeImageUrl`, `afterImageUrl` for transformation comparisons
+  - Video support: `videoUrl` for video content integration
+- **Promotional Banners**: Seasonal announcements and special offers
+  - Content fields: `title`, `description`, `ctaText`, `ctaLink`
+  - Styling: `backgroundColor`, `textColor` for custom branding
+  - Activation: `active`, `startDate`, `endDate`, `priority` for scheduling
 - **Contact Messages**: Client inquiries with status management
 - **Admin Users**: Administrative access with username/password authentication
 
