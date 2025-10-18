@@ -12,6 +12,7 @@ import {
   ObjectStorageService,
   ObjectNotFoundError,
 } from "./objectStorage";
+import { sendBookingConfirmationEmail } from "./email";
 
 // Extend Express Request type to include user
 declare module 'express-serve-static-core' {
@@ -165,8 +166,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
       // Create appointment
       const appointment = await storage.createAppointment(validatedData);
       
-      // In a real app, you'd send confirmation email here
-      console.log(`New appointment created: ${appointment.id} for ${appointment.clientName}`);
+      // Send booking confirmation email
+      try {
+        await sendBookingConfirmationEmail(appointment, service);
+        console.log(`✅ Booking confirmation email sent to ${appointment.clientEmail}`);
+      } catch (emailError) {
+        console.error('⚠️ Failed to send booking confirmation email, but appointment was created:', emailError);
+        // Don't fail the booking if email fails - just log it
+      }
       
       res.status(201).json(appointment);
     } catch (error) {
