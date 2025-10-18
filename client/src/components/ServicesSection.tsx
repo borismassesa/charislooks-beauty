@@ -172,18 +172,27 @@ export default function ServicesSection() {
         )}
 
         {/* Contact for Custom Services */}
-        <div className="mt-12 text-center">
-          <Card className="max-w-2xl mx-auto">
-            <CardContent className="p-8">
-              <h3 className="font-serif text-xl font-bold mb-3">
+        <div className="mt-16 text-center">
+          <Card className="max-w-2xl mx-auto border-0 shadow-lg bg-gradient-to-br from-card to-card/50 hover-elevate">
+            <CardContent className="p-10">
+              <div className="mb-4">
+                <Badge className="bg-gradient-to-r from-ring to-ring/80 text-white shadow-lg border-0 px-3 py-1">
+                  <Star className="w-3 h-3 mr-1 fill-current" />
+                  Custom Services
+                </Badge>
+              </div>
+              <h3 className="font-serif text-2xl font-bold mb-4">
                 Need Something Custom?
               </h3>
-              <p className="text-muted-foreground mb-6">
+              <p className="text-muted-foreground mb-8 max-w-lg mx-auto leading-relaxed">
                 Don't see exactly what you're looking for? We offer custom hair and beauty packages 
                 and can create a personalized service just for you.
               </p>
               <Link href="/contact">
-                <Button className="bg-white hover:bg-white/90 text-black" data-testid="button-contact-custom">
+                <Button 
+                  className="h-12 px-8 bg-gradient-to-r from-ring to-ring/90 text-white hover:from-ring/90 hover:to-ring/80 font-medium shadow-lg border-0 transition-all duration-300" 
+                  data-testid="button-contact-custom"
+                >
                   Get Custom Quote
                 </Button>
               </Link>
