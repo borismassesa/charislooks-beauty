@@ -7,6 +7,7 @@ import { insertPortfolioItemSchema } from "@shared/schema";
 import type { PortfolioItem } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -149,10 +150,6 @@ export default function AdminPortfolio() {
     });
   };
 
-  if (isLoading) {
-    return <div>Loading portfolio...</div>;
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -169,7 +166,35 @@ export default function AdminPortfolio() {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {portfolioItems?.map((item) => (
+        {isLoading ? (
+          <>
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <Card key={i}>
+                <CardHeader className="pb-3">
+                  <div className="flex justify-between items-start">
+                    <Skeleton className="h-5 w-3/4" />
+                    <div className="flex gap-1">
+                      <Skeleton className="h-9 w-9" />
+                      <Skeleton className="h-9 w-9" />
+                      <Skeleton className="h-9 w-9" />
+                    </div>
+                  </div>
+                  <Skeleton className="h-4 w-24 mt-2" />
+                </CardHeader>
+                <CardContent>
+                  <Skeleton className="h-48 w-full mb-3 rounded-md" />
+                  <Skeleton className="h-12 w-full mb-3" />
+                  <div className="flex flex-wrap gap-1">
+                    <Skeleton className="h-6 w-16" />
+                    <Skeleton className="h-6 w-20" />
+                    <Skeleton className="h-6 w-14" />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </>
+        ) : (
+          portfolioItems?.map((item) => (
           <Card key={item.id} data-testid={`card-portfolio-${item.id}`}>
             <CardHeader className="pb-3">
               <div className="flex justify-between items-start">
@@ -230,7 +255,8 @@ export default function AdminPortfolio() {
               )}
             </CardContent>
           </Card>
-        ))}
+          ))
+        )}
       </div>
       
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>

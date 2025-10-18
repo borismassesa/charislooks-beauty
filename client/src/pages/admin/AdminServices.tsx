@@ -7,6 +7,7 @@ import { insertServiceSchema } from "@shared/schema";
 import type { Service } from "@shared/schema";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -256,10 +257,6 @@ export default function AdminServices() {
     setSelectedService(undefined);
   };
 
-  if (isLoading) {
-    return <div>Loading services...</div>;
-  }
-
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -283,7 +280,34 @@ export default function AdminServices() {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {services?.map((service) => (
+        {isLoading ? (
+          <>
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <Card key={i}>
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <Skeleton className="h-5 w-3/4 mb-2" />
+                      <Skeleton className="h-4 w-16" />
+                    </div>
+                    <Skeleton className="h-9 w-9" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <Skeleton className="h-12 w-full mb-4" />
+                  <div className="flex justify-between items-center">
+                    <Skeleton className="h-4 w-20" />
+                    <Skeleton className="h-4 w-16" />
+                  </div>
+                  <div className="mt-4">
+                    <Skeleton className="h-5 w-16" />
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </>
+        ) : (
+          services?.map((service) => (
           <Card key={service.id} data-testid={`card-service-${service.id}`}>
             <CardHeader>
               <div className="flex justify-between items-start">
@@ -330,7 +354,8 @@ export default function AdminServices() {
               </div>
             </CardContent>
           </Card>
-        ))}
+          ))
+        )}
       </div>
     </div>
   );

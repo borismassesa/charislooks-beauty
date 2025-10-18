@@ -2,6 +2,7 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import type { ContactMessage } from "@shared/schema";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Phone, User, MessageSquare, CheckCircle } from "lucide-react";
@@ -30,10 +31,6 @@ export default function AdminMessages() {
     }
   });
 
-  if (isLoading) {
-    return <div>Loading messages...</div>;
-  }
-
   const unreadMessages = messages?.filter(m => m.status === 'unread') || [];
   const readMessages = messages?.filter(m => m.status === 'read') || [];
   const repliedMessages = messages?.filter(m => m.status === 'replied') || [];
@@ -56,34 +53,78 @@ export default function AdminMessages() {
       </div>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Unread</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-orange-500">{unreadMessages.length}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Read</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-500">{readMessages.length}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-sm font-medium">Replied</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-500">{repliedMessages.length}</div>
-          </CardContent>
-        </Card>
+        {isLoading ? (
+          <>
+            {[1, 2, 3].map((i) => (
+              <Card key={i}>
+                <CardHeader className="pb-3">
+                  <Skeleton className="h-4 w-20" />
+                </CardHeader>
+                <CardContent>
+                  <Skeleton className="h-8 w-16" />
+                </CardContent>
+              </Card>
+            ))}
+          </>
+        ) : (
+          <>
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium">Unread</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-orange-500">{unreadMessages.length}</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium">Read</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-blue-500">{readMessages.length}</div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium">Replied</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold text-green-500">{repliedMessages.length}</div>
+              </CardContent>
+            </Card>
+          </>
+        )}
       </div>
       
       <div className="space-y-4">
-        {messages && messages.length > 0 ? (
+        {isLoading ? (
+          <>
+            {[1, 2, 3, 4].map((i) => (
+              <Card key={i}>
+                <CardHeader>
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <Skeleton className="h-6 w-48 mb-2" />
+                      <Skeleton className="h-4 w-64" />
+                    </div>
+                    <Skeleton className="h-6 w-16" />
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-3/4" />
+                    <Skeleton className="h-16 w-full" />
+                    <div className="flex gap-2">
+                      <Skeleton className="h-9 w-24" />
+                      <Skeleton className="h-9 w-24" />
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </>
+        ) : messages && messages.length > 0 ? (
           messages.map((message) => (
             <Card 
               key={message.id} 
