@@ -14,8 +14,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Edit, Plus, Trash2, Star } from "lucide-react";
+import { Edit, Plus, Trash2, Star, Upload } from "lucide-react";
 import { z } from "zod";
+import { ObjectUploader } from "@/components/ObjectUploader";
+import type { UploadResult } from "@uppy/core";
 
 type PortfolioFormData = z.infer<typeof insertPortfolioItemSchema>;
 
@@ -275,46 +277,90 @@ export default function AdminPortfolio() {
                 )}
               />
               
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="category"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Category</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger data-testid="select-portfolio-category">
-                            <SelectValue placeholder="Select a category" />
-                          </SelectTrigger>
-                        </FormControl>
-                        <SelectContent>
-                          <SelectItem value="bridal">Bridal</SelectItem>
-                          <SelectItem value="event">Event</SelectItem>
-                          <SelectItem value="editorial">Editorial</SelectItem>
-                          <SelectItem value="natural">Natural</SelectItem>
-                          <SelectItem value="glam">Glam</SelectItem>
-                        </SelectContent>
-                      </Select>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                
-                <FormField
-                  control={form.control}
-                  name="imageUrl"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Image URL</FormLabel>
+              <FormField
+                control={form.control}
+                name="category"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Category</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
                       <FormControl>
-                        <Input {...field} placeholder="https://..." data-testid="input-portfolio-image" />
+                        <SelectTrigger data-testid="select-portfolio-category">
+                          <SelectValue placeholder="Select a category" />
+                        </SelectTrigger>
                       </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
+                      <SelectContent>
+                        <SelectItem value="bridal">Bridal</SelectItem>
+                        <SelectItem value="event">Event</SelectItem>
+                        <SelectItem value="editorial">Editorial</SelectItem>
+                        <SelectItem value="natural">Natural</SelectItem>
+                        <SelectItem value="glam">Glam</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="imageUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Portfolio Image</FormLabel>
+                    <FormControl>
+                      <div className="space-y-2">
+                        {field.value && (
+                          <div className="aspect-video bg-muted rounded-md overflow-hidden">
+                            <img 
+                              src={field.value} 
+                              alt="Portfolio preview"
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        )}
+                        <ObjectUploader
+                          maxNumberOfFiles={1}
+                          maxFileSize={10485760}
+                          buttonTestId="button-upload-image"
+                          onGetUploadParameters={async () => {
+                            const response: any = await apiRequest("POST", "/api/admin/portfolio/upload");
+                            return {
+                              method: "PUT" as const,
+                              url: response.uploadURL,
+                            };
+                          }}
+                          onComplete={async (result) => {
+                            if (result.successful && result.successful.length > 0) {
+                              const uploadURL = result.successful[0].uploadURL;
+                              
+                              if (selectedItem) {
+                                const response: any = await apiRequest(
+                                  "PUT",
+                                  `/api/admin/portfolio/${selectedItem.id}/image`,
+                                  { imageUrl: uploadURL }
+                                );
+                                field.onChange(response.objectPath);
+                                toast({ title: "Image uploaded successfully" });
+                                queryClient.invalidateQueries({ queryKey: ["/api/portfolio"] });
+                              } else {
+                                field.onChange(uploadURL);
+                                toast({ title: "Image uploaded. Complete the form to save." });
+                              }
+                            }
+                          }}
+                        >
+                          <div className="flex items-center gap-2">
+                            <Upload className="w-4 h-4" />
+                            <span>Upload Image</span>
+                          </div>
+                        </ObjectUploader>
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               
               <FormField
                 control={form.control}

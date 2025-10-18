@@ -8,6 +8,10 @@ import {
   insertServiceSchema,
   insertPortfolioItemSchema 
 } from "@shared/schema";
+import {
+  ObjectStorageService,
+  ObjectNotFoundError,
+} from "./objectStorage";
 
 // Extend Express Request type to include user
 declare module 'express-serve-static-core' {
@@ -427,6 +431,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching availability:", error);
       res.status(500).json({ error: "Failed to fetch availability" });
+    }
+  });
+
+  // Object storage routes for portfolio images
+  // GET /objects/:objectPath(*) - Serve uploaded portfolio images publicly (NO auth required)
+  app.get("/objects/:objectPath(*)", async (req, res) => {
+    const objectStorageService = new ObjectStorageService();
+    try {
+      const objectFile = await objectStorageService.getObjectEntityFile(
+        req.path,
+      );
+      objectStorageService.downloadObject(objectFile, res);
+    } catch (error) {
+      console.error("Error checking object access:", error);
+      if (error instanceof ObjectNotFoundError) {
+        return res.sendStatus(404);
+      }
+      return res.sendStatus(500);
+    }
+  });
+
+  // POST /api/admin/portfolio/upload - Get presigned URL for upload (requires admin auth)
+  app.post("/api/admin/portfolio/upload", isAuthenticated, async (req, res) => {
+    const objectStorageService = new ObjectStorageService();
+    const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+    res.json({ uploadURL });
+  });
+
+  // PUT /api/admin/portfolio/:id/image - Update portfolio item with uploaded image path (requires admin auth)
+  app.put("/api/admin/portfolio/:id/image", isAuthenticated, async (req, res) => {
+    if (!req.body.imageUrl) {
+      return res.status(400).json({ error: "imageUrl is required" });
+    }
+
+    const adminId = (req.session as any).adminId;
+
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const objectPath = await objectStorageService.trySetObjectEntityAclPolicy(
+        req.body.imageUrl,
+        {
+          owner: adminId,
+          visibility: "public",
+        },
+      );
+
+      const item = await storage.updatePortfolioItem(req.params.id, {
+        imageUrl: objectPath,
+      });
+
+      if (!item) {
+        return res.status(404).json({ error: "Portfolio item not found" });
+      }
+
+      res.status(200).json({
+        objectPath: objectPath,
+      });
+    } catch (error) {
+      console.error("Error setting portfolio image:", error);
+      res.status(500).json({ error: "Internal server error" });
     }
   });
 
