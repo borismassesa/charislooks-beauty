@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -17,6 +18,15 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import {
   Home,
   Settings,
   Image,
@@ -24,6 +34,8 @@ import {
   MessageSquare,
   LogOut,
   Briefcase,
+  User,
+  ChevronUp,
 } from "lucide-react";
 
 // Import actual admin components
@@ -35,7 +47,7 @@ import AdminMessages from "./admin/AdminMessages";
 
 const menuItems = [
   {
-    title: "Overview",
+    title: "Dashboard",
     url: "/admin/dashboard",
     icon: Home,
   },
@@ -61,7 +73,7 @@ const menuItems = [
   },
 ];
 
-function AdminSidebar() {
+function AdminSidebar({ adminUsername }: { adminUsername: string }) {
   const [location, setLocation] = useLocation();
   const { toast } = useToast();
   
@@ -74,6 +86,17 @@ function AdminSidebar() {
       setLocation("/admin");
     }
   });
+
+  // Get initials for avatar fallback
+  const getInitials = (name: string) => {
+    if (!name) return 'AD';
+    return name
+      .split(' ')
+      .map(word => word[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2) || 'AD';
+  };
 
   return (
     <Sidebar>
@@ -99,24 +122,61 @@ function AdminSidebar() {
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
-        
-        <SidebarGroup>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton
+      </SidebarContent>
+      
+      <SidebarFooter>
+        <SidebarMenu>
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className="flex w-full items-center gap-2 overflow-hidden rounded-md p-2 text-left text-sm outline-hidden ring-sidebar-ring transition-[width,height,padding] hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 active:bg-sidebar-accent active:text-sidebar-accent-foreground data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground h-12"
+                  data-testid="button-profile-dropdown"
+                >
+                  <Avatar className="h-8 w-8">
+                    <AvatarFallback className="bg-primary text-primary-foreground">
+                      {getInitials(adminUsername)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col items-start flex-1 text-left text-sm leading-tight">
+                    <span className="truncate font-semibold">{adminUsername}</span>
+                    <span className="truncate text-xs text-muted-foreground">Administrator</span>
+                  </div>
+                  <ChevronUp className="ml-auto h-4 w-4" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent
+                side="top"
+                align="end"
+                className="w-56"
+                data-testid="dropdown-profile-menu"
+              >
+                <DropdownMenuLabel data-testid="text-profile-email">
+                  {adminUsername}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem data-testid="button-profile">
+                  <User className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem data-testid="button-settings">
+                  <Settings className="mr-2 h-4 w-4" />
+                  <span>Settings</span>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
                   onClick={() => logoutMutation.mutate()}
                   disabled={logoutMutation.isPending}
-                  data-testid="button-admin-logout"
+                  data-testid="button-logout"
                 >
-                  <LogOut className="w-4 h-4" />
+                  <LogOut className="mr-2 h-4 w-4" />
                   <span>Logout</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
+        </SidebarMenu>
+      </SidebarFooter>
     </Sidebar>
   );
 }
@@ -159,10 +219,12 @@ export default function AdminDashboard() {
     "--sidebar-width-icon": "3rem",
   };
 
+  const adminUsername = (data as any).admin?.username || 'Admin';
+
   return (
     <SidebarProvider style={style as React.CSSProperties}>
       <div className="flex h-screen w-full">
-        <AdminSidebar />
+        <AdminSidebar adminUsername={adminUsername} />
         <div className="flex flex-col flex-1">
           <header className="flex items-center justify-between p-4 border-b">
             <div className="flex items-center gap-4">
@@ -170,7 +232,7 @@ export default function AdminDashboard() {
               <h1 className="text-2xl font-semibold">Admin Panel</h1>
             </div>
             <div className="text-sm text-muted-foreground">
-              Welcome, {(data as any).admin?.username || 'Admin'}
+              Welcome, {adminUsername}
             </div>
           </header>
           <main className="flex-1 overflow-auto p-6">
