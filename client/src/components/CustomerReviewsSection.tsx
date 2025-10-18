@@ -1,84 +1,11 @@
+import { useQuery } from '@tanstack/react-query'
+import type { Testimonial } from '@shared/schema'
 import { Card } from '@/components/ui/card'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Skeleton } from '@/components/ui/skeleton'
 import { Star, Quote } from 'lucide-react'
 
-interface Review {
-  id: number
-  name: string
-  service: string
-  rating: number
-  review: string
-  avatar: string
-}
-
-const reviews: Review[] = [
-  {
-    id: 1,
-    name: "Sarah Johnson",
-    service: "Bridal Makeup & Hair",
-    rating: 5,
-    review: "Absolutely stunning work! CharisLooks made me feel like a princess on my wedding day.",
-    avatar: "SJ"
-  },
-  {
-    id: 2,
-    name: "Emily Chen", 
-    service: "Editorial Makeup",
-    rating: 5,
-    review: "Professional, creative, and exceeded all expectations. Perfect for my photoshoot!",
-    avatar: "EC"
-  },
-  {
-    id: 3,
-    name: "Maria Rodriguez",
-    service: "Hair Extensions",
-    rating: 5,
-    review: "My hair has never looked better! The extensions blend perfectly and look gorgeous.",
-    avatar: "MR"
-  },
-  {
-    id: 4,
-    name: "Jessica Thompson",
-    service: "Special Event Makeup",
-    rating: 5,
-    review: "Made me feel confident and beautiful. The makeup lasted all night and looked perfect!",
-    avatar: "JT"
-  },
-  {
-    id: 5,
-    name: "Aisha Patel",
-    service: "Precision Hair Cut",
-    rating: 5,
-    review: "Best haircut I've ever had! The precision and skill is unmatched.",
-    avatar: "AP"
-  },
-  {
-    id: 6,
-    name: "Rachel Kim",
-    service: "Airbrush Makeup",
-    rating: 5,
-    review: "The airbrush technique is incredible! Flawless finish that looked natural yet glamorous.",
-    avatar: "RK"
-  },
-  {
-    id: 7,
-    name: "Lisa Garcia",
-    service: "Bridal Hair",
-    rating: 5,
-    review: "Perfect bridal hair styling! Stayed beautiful throughout the entire wedding day.",
-    avatar: "LG"
-  },
-  {
-    id: 8,
-    name: "Anna Mitchell",
-    service: "Photography Makeup",
-    rating: 5,
-    review: "Amazing work for my portfolio shoot. Every photo came out flawless!",
-    avatar: "AM"
-  }
-]
-
-function ReviewCard({ review, isDuplicate = false }: { review: Review; isDuplicate?: boolean }) {
+function ReviewCard({ review, isDuplicate = false }: { review: Testimonial; isDuplicate?: boolean }) {
   return (
     <Card 
       className="flex-shrink-0 w-80 p-6 bg-card hover-elevate"
@@ -92,7 +19,7 @@ function ReviewCard({ review, isDuplicate = false }: { review: Review; isDuplica
         
         {/* Review text */}
         <blockquote className="text-sm leading-relaxed text-foreground mb-4 flex-1">
-          "{review.review}"
+          "{review.testimonial}"
         </blockquote>
         
         {/* Rating */}
@@ -109,7 +36,7 @@ function ReviewCard({ review, isDuplicate = false }: { review: Review; isDuplica
         <div className="flex items-center">
           <Avatar className="w-12 h-12 mr-3">
             <AvatarFallback className="bg-ring text-white font-semibold text-sm">
-              {review.avatar}
+              {review.avatarInitials}
             </AvatarFallback>
           </Avatar>
           <div>
@@ -117,7 +44,7 @@ function ReviewCard({ review, isDuplicate = false }: { review: Review; isDuplica
               className="font-semibold text-foreground"
               data-testid={isDuplicate ? undefined : `text-reviewer-name-${review.id}`}
             >
-              {review.name}
+              {review.clientName}
             </h4>
             <p className="text-sm text-muted-foreground">{review.service}</p>
           </div>
@@ -127,7 +54,7 @@ function ReviewCard({ review, isDuplicate = false }: { review: Review; isDuplica
   )
 }
 
-function MarqueeRow({ reviews, direction }: { reviews: Review[]; direction: 'ltr' | 'rtl' }) {
+function MarqueeRow({ reviews, direction }: { reviews: Testimonial[]; direction: 'ltr' | 'rtl' }) {
   const animationClass = direction === 'ltr' ? 'animate-marquee-ltr' : 'animate-marquee-rtl'
   
   return (
@@ -147,9 +74,51 @@ function MarqueeRow({ reviews, direction }: { reviews: Review[]; direction: 'ltr
 }
 
 export default function CustomerReviewsSection() {
-  // Split reviews into two rows
-  const firstRowReviews = reviews.slice(0, 4)
-  const secondRowReviews = reviews.slice(4, 8)
+  const { data: testimonials, isLoading } = useQuery<Testimonial[]>({
+    queryKey: ["/api/testimonials"]
+  });
+  
+  // Filter and split active testimonials into two rows
+  const activeTestimonials = testimonials?.filter(t => t.active) || [];
+  const firstRowReviews = activeTestimonials.slice(0, Math.ceil(activeTestimonials.length / 2));
+  const secondRowReviews = activeTestimonials.slice(Math.ceil(activeTestimonials.length / 2));
+
+  if (isLoading) {
+    return (
+      <section className="py-16 lg:py-24 bg-muted/30">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="font-serif text-3xl lg:text-4xl font-bold mb-4">
+              What Our Clients Say
+            </h2>
+            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+              Real stories from real clients who trusted us with their beauty journey
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[1, 2, 3, 4].map((i) => (
+              <Card key={i} className="p-6">
+                <Skeleton className="h-6 w-6 mb-4" />
+                <Skeleton className="h-20 w-full mb-4" />
+                <Skeleton className="h-5 w-24 mb-4" />
+                <div className="flex items-center">
+                  <Skeleton className="h-12 w-12 rounded-full mr-3" />
+                  <div className="flex-1">
+                    <Skeleton className="h-4 w-24 mb-2" />
+                    <Skeleton className="h-3 w-32" />
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  if (!activeTestimonials.length) {
+    return null;
+  }
 
   return (
     <section className="py-16 lg:py-24 bg-muted/30">
@@ -167,10 +136,10 @@ export default function CustomerReviewsSection() {
         {/* Marquee Rows */}
         <div className="space-y-6 overflow-hidden">
           {/* First row: Right to Left */}
-          <MarqueeRow reviews={firstRowReviews} direction="rtl" />
+          {firstRowReviews.length > 0 && <MarqueeRow reviews={firstRowReviews} direction="rtl" />}
           
           {/* Second row: Left to Right */}
-          <MarqueeRow reviews={secondRowReviews} direction="ltr" />
+          {secondRowReviews.length > 0 && <MarqueeRow reviews={secondRowReviews} direction="ltr" />}
         </div>
       </div>
     </section>
