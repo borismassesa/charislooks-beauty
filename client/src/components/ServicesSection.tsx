@@ -9,13 +9,8 @@ import type { Service } from '@shared/schema'
 
 export default function ServicesSection() {
   // Fetch services from API
-  const { data: services = [], isLoading, error } = useQuery({
-    queryKey: ['/api/services'],
-    queryFn: async () => {
-      const response = await fetch('/api/services')
-      if (!response.ok) throw new Error('Failed to fetch services')
-      return response.json() as Promise<Service[]>
-    }
+  const { data: services = [], isLoading, error } = useQuery<Service[]>({
+    queryKey: ['/api/services']
   })
 
   // Filter functions for each category
