@@ -79,6 +79,18 @@ export const adminUsers = pgTable("admin_users", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const testimonials = pgTable("testimonials", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  clientName: text("client_name").notNull(),
+  service: text("service").notNull(),
+  rating: integer("rating").notNull(), // 1-5 stars
+  testimonial: text("testimonial").notNull(),
+  avatarInitials: text("avatar_initials").notNull(), // e.g., "SJ" for Sarah Johnson
+  featured: boolean("featured").default(false).notNull(),
+  active: boolean("active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // Insert schemas
 export const insertServiceSchema = createInsertSchema(services).omit({
   id: true,
@@ -114,6 +126,11 @@ export const insertPromotionalBannerSchema = createInsertSchema(promotionalBanne
   createdAt: true,
 });
 
+export const insertTestimonialSchema = createInsertSchema(testimonials).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type Service = typeof services.$inferSelect;
 export type InsertService = z.infer<typeof insertServiceSchema>;
@@ -132,3 +149,6 @@ export type InsertAdminUser = z.infer<typeof insertAdminUserSchema>;
 
 export type PromotionalBanner = typeof promotionalBanners.$inferSelect;
 export type InsertPromotionalBanner = z.infer<typeof insertPromotionalBannerSchema>;
+
+export type Testimonial = typeof testimonials.$inferSelect;
+export type InsertTestimonial = z.infer<typeof insertTestimonialSchema>;
