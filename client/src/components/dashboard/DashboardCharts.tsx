@@ -289,7 +289,10 @@ export default function DashboardCharts({
                   <Legend 
                     verticalAlign="bottom" 
                     height={36}
-                    formatter={(value, entry) => `${value} (${entry.payload?.percentage?.toFixed(1)}%)`}
+                    formatter={(value, entry: any) => {
+                      const percentage = entry.payload?.percentage;
+                      return percentage !== undefined ? `${value} (${percentage.toFixed(1)}%)` : value;
+                    }}
                   />
                 </PieChart>
               </ResponsiveContainer>

@@ -34,7 +34,7 @@ export interface DateRange {
 }
 
 // Define billable statuses
-export const BILLABLE_STATUSES = ['confirmed', 'completed'] as const;
+export const BILLABLE_STATUSES = ['confirmed', 'completed'];
 export type BillableStatus = typeof BILLABLE_STATUSES[number];
 
 // Helper function to check if an appointment is billable
