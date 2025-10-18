@@ -5,6 +5,7 @@ import {
   portfolioItems,
   contactMessages,
   adminUsers,
+  promotionalBanners,
   type Service, 
   type InsertService,
   type Appointment, 
@@ -14,7 +15,9 @@ import {
   type ContactMessage, 
   type InsertContactMessage,
   type AdminUser,
-  type InsertAdminUser
+  type InsertAdminUser,
+  type PromotionalBanner,
+  type InsertPromotionalBanner
 } from "@shared/schema";
 import { IStorage } from './storage';
 import bcrypt from 'bcryptjs';
@@ -365,6 +368,35 @@ export class DrizzleStorage implements IStorage {
       .where(eq(adminUsers.id, id))
       .returning();
     return result[0];
+  }
+  
+  // Promotional Banners
+  async getBanners(): Promise<PromotionalBanner[]> {
+    const result = await db.select().from(promotionalBanners).orderBy(desc(promotionalBanners.priority));
+    return result;
+  }
+
+  async getBanner(id: string): Promise<PromotionalBanner | undefined> {
+    const result = await db.select().from(promotionalBanners).where(eq(promotionalBanners.id, id)).limit(1);
+    return result[0];
+  }
+
+  async createBanner(banner: InsertPromotionalBanner): Promise<PromotionalBanner> {
+    const result = await db.insert(promotionalBanners).values(banner).returning();
+    return result[0];
+  }
+
+  async updateBanner(id: string, bannerUpdate: Partial<InsertPromotionalBanner>): Promise<PromotionalBanner | undefined> {
+    const result = await db.update(promotionalBanners)
+      .set(bannerUpdate)
+      .where(eq(promotionalBanners.id, id))
+      .returning();
+    return result[0];
+  }
+
+  async deleteBanner(id: string): Promise<boolean> {
+    const result = await db.delete(promotionalBanners).where(eq(promotionalBanners.id, id)).returning();
+    return result.length > 0;
   }
 }
 

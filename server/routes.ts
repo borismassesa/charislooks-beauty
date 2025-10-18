@@ -6,7 +6,8 @@ import {
   insertAppointmentSchema, 
   insertContactMessageSchema,
   insertServiceSchema,
-  insertPortfolioItemSchema 
+  insertPortfolioItemSchema,
+  insertPromotionalBannerSchema 
 } from "@shared/schema";
 import {
   ObjectStorageService,
@@ -472,6 +473,57 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching availability:", error);
       res.status(500).json({ error: "Failed to fetch availability" });
+    }
+  });
+
+  // Promotional Banners routes
+  app.get("/api/banners", async (req, res) => {
+    try {
+      const banners = await storage.getBanners();
+      res.json(banners);
+    } catch (error) {
+      console.error("Error fetching banners:", error);
+      res.status(500).json({ error: "Failed to fetch banners" });
+    }
+  });
+
+  app.post("/api/admin/banners", isAuthenticated, async (req, res) => {
+    try {
+      const validatedData = insertPromotionalBannerSchema.parse(req.body);
+      const banner = await storage.createBanner(validatedData);
+      res.status(201).json(banner);
+    } catch (error) {
+      console.error("Error creating banner:", error);
+      if (error && typeof error === 'object' && 'name' in error && error.name === 'ZodError') {
+        return res.status(400).json({ error: "Invalid banner data", details: (error as any).errors });
+      }
+      res.status(500).json({ error: "Failed to create banner" });
+    }
+  });
+
+  app.patch("/api/admin/banners/:id", isAuthenticated, async (req, res) => {
+    try {
+      const banner = await storage.updateBanner(req.params.id, req.body);
+      if (!banner) {
+        return res.status(404).json({ error: "Banner not found" });
+      }
+      res.json(banner);
+    } catch (error) {
+      console.error("Error updating banner:", error);
+      res.status(500).json({ error: "Failed to update banner" });
+    }
+  });
+
+  app.delete("/api/admin/banners/:id", isAuthenticated, async (req, res) => {
+    try {
+      const deleted = await storage.deleteBanner(req.params.id);
+      if (!deleted) {
+        return res.status(404).json({ error: "Banner not found" });
+      }
+      res.json({ message: "Banner deleted successfully" });
+    } catch (error) {
+      console.error("Error deleting banner:", error);
+      res.status(500).json({ error: "Failed to delete banner" });
     }
   });
 

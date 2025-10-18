@@ -8,7 +8,9 @@ import {
   type ContactMessage, 
   type InsertContactMessage,
   type AdminUser,
-  type InsertAdminUser
+  type InsertAdminUser,
+  type PromotionalBanner,
+  type InsertPromotionalBanner
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -66,6 +68,13 @@ export interface IStorage {
   getAdminById(id: string): Promise<AdminUser | undefined>;
   createAdmin(admin: InsertAdminUser): Promise<AdminUser>;
   updateAdmin(id: string, admin: Partial<InsertAdminUser>): Promise<AdminUser | undefined>;
+  
+  // Promotional Banners
+  getBanners(): Promise<PromotionalBanner[]>;
+  getBanner(id: string): Promise<PromotionalBanner | undefined>;
+  createBanner(banner: InsertPromotionalBanner): Promise<PromotionalBanner>;
+  updateBanner(id: string, banner: Partial<InsertPromotionalBanner>): Promise<PromotionalBanner | undefined>;
+  deleteBanner(id: string): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -397,6 +406,9 @@ export class MemStorage implements IStorage {
       id,
       tags: insertItem.tags ?? [],
       featured: insertItem.featured ?? false,
+      beforeImageUrl: insertItem.beforeImageUrl ?? null,
+      afterImageUrl: insertItem.afterImageUrl ?? null,
+      videoUrl: insertItem.videoUrl ?? null,
       createdAt: new Date()
     };
     this.portfolioItems.set(id, item);
@@ -476,6 +488,51 @@ export class MemStorage implements IStorage {
     const updatedAdmin = { ...admin, ...adminUpdate };
     this.adminUsers.set(id, updatedAdmin);
     return updatedAdmin;
+  }
+  
+  // Promotional Banners
+  private banners: Map<string, PromotionalBanner> = new Map();
+  
+  async getBanners(): Promise<PromotionalBanner[]> {
+    return Array.from(this.banners.values()).sort(
+      (a, b) => (b.priority || 0) - (a.priority || 0)
+    );
+  }
+
+  async getBanner(id: string): Promise<PromotionalBanner | undefined> {
+    return this.banners.get(id);
+  }
+
+  async createBanner(insertBanner: InsertPromotionalBanner): Promise<PromotionalBanner> {
+    const id = randomUUID();
+    const banner: PromotionalBanner = {
+      ...insertBanner,
+      id,
+      backgroundColor: insertBanner.backgroundColor ?? '#340808',
+      textColor: insertBanner.textColor ?? '#ffffff',
+      active: insertBanner.active ?? true,
+      priority: insertBanner.priority ?? 0,
+      ctaText: insertBanner.ctaText ?? null,
+      ctaLink: insertBanner.ctaLink ?? null,
+      startDate: insertBanner.startDate ?? null,
+      endDate: insertBanner.endDate ?? null,
+      createdAt: new Date()
+    };
+    this.banners.set(id, banner);
+    return banner;
+  }
+
+  async updateBanner(id: string, bannerUpdate: Partial<InsertPromotionalBanner>): Promise<PromotionalBanner | undefined> {
+    const banner = this.banners.get(id);
+    if (!banner) return undefined;
+    
+    const updatedBanner = { ...banner, ...bannerUpdate };
+    this.banners.set(id, updatedBanner);
+    return updatedBanner;
+  }
+
+  async deleteBanner(id: string): Promise<boolean> {
+    return this.banners.delete(id);
   }
 }
 
