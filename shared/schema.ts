@@ -86,6 +86,7 @@ export const testimonials = pgTable("testimonials", {
   rating: integer("rating").notNull(), // 1-5 stars
   testimonial: text("testimonial").notNull(),
   avatarInitials: text("avatar_initials").notNull(), // e.g., "SJ" for Sarah Johnson
+  avatarUrl: text("avatar_url"), // optional profile picture URL
   featured: boolean("featured").default(false).notNull(),
   active: boolean("active").default(true).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),

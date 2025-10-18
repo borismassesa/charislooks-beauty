@@ -2,6 +2,7 @@ import type { Express, Request, Response, NextFunction } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import bcrypt from 'bcryptjs';
+import multer from 'multer';
 import { 
   insertAppointmentSchema, 
   insertContactMessageSchema,
@@ -592,6 +593,54 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error deleting banner:", error);
       res.status(500).json({ error: "Failed to delete banner" });
+    }
+  });
+
+  // General file upload endpoint (requires admin auth)
+  const upload = multer({ storage: multer.memoryStorage() });
+  
+  app.post("/api/upload", isAuthenticated, upload.single('file'), async (req, res) => {
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: "No file uploaded" });
+      }
+
+      const adminId = (req.session as any).adminId;
+      const objectStorageService = new ObjectStorageService();
+      
+      // Get upload URL
+      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+      
+      // Upload file to object storage
+      const uploadResponse = await fetch(uploadURL, {
+        method: 'PUT',
+        body: req.file.buffer,
+        headers: {
+          'Content-Type': req.file.mimetype,
+        },
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error('Failed to upload to object storage');
+      }
+
+      // Normalize the object path
+      const objectPath = objectStorageService.normalizeObjectEntityPath(uploadURL);
+      
+      // Set ACL policy to make it public
+      const publicPath = await objectStorageService.trySetObjectEntityAclPolicy(
+        objectPath,
+        {
+          owner: adminId,
+          visibility: "public",
+        }
+      );
+
+      // Return the public URL
+      res.json({ url: publicPath });
+    } catch (error) {
+      console.error("Error uploading file:", error);
+      res.status(500).json({ error: "Failed to upload file" });
     }
   });
 

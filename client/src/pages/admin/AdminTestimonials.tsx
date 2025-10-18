@@ -14,16 +14,19 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Edit, Plus, Star, Trash2, Quote } from "lucide-react";
+import { Edit, Plus, Star, Trash2, Quote, Upload, X } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { z } from "zod";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 type TestimonialFormData = z.infer<typeof insertTestimonialSchema>;
 
 function TestimonialDialog({ testimonial, onClose }: { testimonial?: Testimonial; onClose: () => void }) {
   const { toast } = useToast();
   const isEditing = !!testimonial;
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(testimonial?.avatarUrl || null);
+  const [isUploading, setIsUploading] = useState(false);
   
   const form = useForm<TestimonialFormData>({
     resolver: zodResolver(insertTestimonialSchema),
@@ -33,6 +36,7 @@ function TestimonialDialog({ testimonial, onClose }: { testimonial?: Testimonial
       rating: testimonial.rating,
       testimonial: testimonial.testimonial,
       avatarInitials: testimonial.avatarInitials,
+      avatarUrl: testimonial.avatarUrl,
       featured: testimonial.featured,
       active: testimonial.active
     } : {
@@ -41,6 +45,7 @@ function TestimonialDialog({ testimonial, onClose }: { testimonial?: Testimonial
       rating: 5,
       testimonial: "",
       avatarInitials: "",
+      avatarUrl: null,
       featured: false,
       active: true
     }
@@ -82,11 +87,65 @@ function TestimonialDialog({ testimonial, onClose }: { testimonial?: Testimonial
     }
   });
 
+  const handleAvatarUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload an image file",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+        credentials: 'include'
+      });
+
+      if (!response.ok) throw new Error('Upload failed');
+
+      const { url } = await response.json();
+      setAvatarUrl(url);
+      form.setValue('avatarUrl', url);
+      
+      toast({
+        title: "Avatar uploaded successfully"
+      });
+    } catch (error) {
+      toast({
+        title: "Upload failed",
+        description: "Failed to upload avatar image",
+        variant: "destructive"
+      });
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const handleRemoveAvatar = () => {
+    setAvatarUrl(null);
+    form.setValue('avatarUrl', null);
+  };
+
   const onSubmit = async (data: TestimonialFormData) => {
+    const submitData = {
+      ...data,
+      avatarUrl
+    };
+    
     if (isEditing) {
-      updateMutation.mutate(data);
+      updateMutation.mutate(submitData);
     } else {
-      createMutation.mutate(data);
+      createMutation.mutate(submitData);
     }
   };
 
@@ -138,6 +197,60 @@ function TestimonialDialog({ testimonial, onClose }: { testimonial?: Testimonial
                 </FormItem>
               )}
             />
+          </div>
+          
+          {/* Avatar Upload */}
+          <div className="space-y-2">
+            <FormLabel>Profile Picture (Optional)</FormLabel>
+            <div className="flex items-center gap-4">
+              <Avatar className="h-16 w-16">
+                {avatarUrl ? (
+                  <AvatarImage src={avatarUrl} alt="Avatar" />
+                ) : (
+                  <AvatarFallback className="text-lg">
+                    {form.watch('avatarInitials') || '?'}
+                  </AvatarFallback>
+                )}
+              </Avatar>
+              
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => document.getElementById('avatar-upload')?.click()}
+                  disabled={isUploading}
+                  data-testid="button-upload-avatar"
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  {isUploading ? 'Uploading...' : 'Upload Avatar'}
+                </Button>
+                
+                {avatarUrl && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleRemoveAvatar}
+                    data-testid="button-remove-avatar"
+                  >
+                    <X className="h-4 w-4 mr-2" />
+                    Remove
+                  </Button>
+                )}
+              </div>
+              
+              <input
+                id="avatar-upload"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleAvatarUpload}
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Upload a profile picture or it will show initials
+            </p>
           </div>
           
           <div className="grid grid-cols-2 gap-4">
