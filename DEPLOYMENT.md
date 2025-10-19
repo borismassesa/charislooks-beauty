@@ -2,6 +2,16 @@
 
 This guide covers deploying your beauty salon application to production.
 
+## ⚠️ Important: Platform Selection
+
+**This app uses Express.js with persistent connections and sessions.**
+
+- ✅ **Railway** - RECOMMENDED (designed for Express apps)
+- ✅ **DigitalOcean App Platform** - Good alternative
+- ❌ **Vercel** - NOT COMPATIBLE (serverless only, requires major refactoring)
+
+If you already deployed to Vercel and it's showing raw code, see `WHY_NOT_VERCEL.md` for explanation.
+
 ## 📋 Pre-Deployment Checklist
 
 - [ ] Production build tested locally
