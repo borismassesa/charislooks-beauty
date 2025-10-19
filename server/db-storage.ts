@@ -7,6 +7,9 @@ import {
   adminUsers,
   promotionalBanners,
   testimonials,
+  contactFAQs,
+  contactInfo,
+  socialMediaLinks,
   type Service, 
   type InsertService,
   type Appointment, 
@@ -20,7 +23,13 @@ import {
   type PromotionalBanner,
   type InsertPromotionalBanner,
   type Testimonial,
-  type InsertTestimonial
+  type InsertTestimonial,
+  type ContactFAQ,
+  type InsertContactFAQ,
+  type ContactInfo,
+  type InsertContactInfo,
+  type SocialMediaLink,
+  type InsertSocialMediaLink
 } from "@shared/schema";
 import { IStorage } from './storage';
 import bcrypt from 'bcryptjs';
@@ -434,6 +443,111 @@ export class DrizzleStorage implements IStorage {
 
   async deleteTestimonial(id: string): Promise<boolean> {
     const result = await db.delete(testimonials).where(eq(testimonials.id, id)).returning();
+    return result.length > 0;
+  }
+  
+  // Contact Page Management Methods
+  
+  // Contact FAQs
+  async getContactFAQs(): Promise<ContactFAQ[]> {
+    return await db.select().from(contactFAQs).orderBy(contactFAQs.order);
+  }
+  
+  async getActiveContactFAQs(): Promise<ContactFAQ[]> {
+    return await db.select().from(contactFAQs)
+      .where(eq(contactFAQs.active, true))
+      .orderBy(contactFAQs.order);
+  }
+  
+  async getContactFAQ(id: string): Promise<ContactFAQ | undefined> {
+    const result = await db.select().from(contactFAQs).where(eq(contactFAQs.id, id)).limit(1);
+    return result.length > 0 ? result[0] : undefined;
+  }
+  
+  async createContactFAQ(faq: InsertContactFAQ): Promise<ContactFAQ> {
+    const result = await db.insert(contactFAQs).values(faq).returning();
+    return result[0];
+  }
+  
+  async updateContactFAQ(id: string, faqUpdate: Partial<InsertContactFAQ>): Promise<ContactFAQ | undefined> {
+    const result = await db.update(contactFAQs)
+      .set(faqUpdate)
+      .where(eq(contactFAQs.id, id))
+      .returning();
+    return result.length > 0 ? result[0] : undefined;
+  }
+  
+  async deleteContactFAQ(id: string): Promise<boolean> {
+    const result = await db.delete(contactFAQs).where(eq(contactFAQs.id, id)).returning();
+    return result.length > 0;
+  }
+  
+  // Contact Info
+  async getContactInfo(): Promise<ContactInfo[]> {
+    return await db.select().from(contactInfo);
+  }
+  
+  async getActiveContactInfo(): Promise<ContactInfo | undefined> {
+    const result = await db.select().from(contactInfo)
+      .where(eq(contactInfo.active, true))
+      .limit(1);
+    return result.length > 0 ? result[0] : undefined;
+  }
+  
+  async getContactInfoById(id: string): Promise<ContactInfo | undefined> {
+    const result = await db.select().from(contactInfo).where(eq(contactInfo.id, id)).limit(1);
+    return result.length > 0 ? result[0] : undefined;
+  }
+  
+  async createContactInfo(info: InsertContactInfo): Promise<ContactInfo> {
+    const result = await db.insert(contactInfo).values(info).returning();
+    return result[0];
+  }
+  
+  async updateContactInfo(id: string, infoUpdate: Partial<InsertContactInfo>): Promise<ContactInfo | undefined> {
+    const result = await db.update(contactInfo)
+      .set(infoUpdate)
+      .where(eq(contactInfo.id, id))
+      .returning();
+    return result.length > 0 ? result[0] : undefined;
+  }
+  
+  async deleteContactInfo(id: string): Promise<boolean> {
+    const result = await db.delete(contactInfo).where(eq(contactInfo.id, id)).returning();
+    return result.length > 0;
+  }
+  
+  // Social Media Links
+  async getSocialMediaLinks(): Promise<SocialMediaLink[]> {
+    return await db.select().from(socialMediaLinks).orderBy(socialMediaLinks.order);
+  }
+  
+  async getActiveSocialMediaLinks(): Promise<SocialMediaLink[]> {
+    return await db.select().from(socialMediaLinks)
+      .where(eq(socialMediaLinks.active, true))
+      .orderBy(socialMediaLinks.order);
+  }
+  
+  async getSocialMediaLink(id: string): Promise<SocialMediaLink | undefined> {
+    const result = await db.select().from(socialMediaLinks).where(eq(socialMediaLinks.id, id)).limit(1);
+    return result.length > 0 ? result[0] : undefined;
+  }
+  
+  async createSocialMediaLink(link: InsertSocialMediaLink): Promise<SocialMediaLink> {
+    const result = await db.insert(socialMediaLinks).values(link).returning();
+    return result[0];
+  }
+  
+  async updateSocialMediaLink(id: string, linkUpdate: Partial<InsertSocialMediaLink>): Promise<SocialMediaLink | undefined> {
+    const result = await db.update(socialMediaLinks)
+      .set(linkUpdate)
+      .where(eq(socialMediaLinks.id, id))
+      .returning();
+    return result.length > 0 ? result[0] : undefined;
+  }
+  
+  async deleteSocialMediaLink(id: string): Promise<boolean> {
+    const result = await db.delete(socialMediaLinks).where(eq(socialMediaLinks.id, id)).returning();
     return result.length > 0;
   }
 }

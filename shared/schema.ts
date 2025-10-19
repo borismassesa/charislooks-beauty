@@ -92,6 +92,38 @@ export const testimonials = pgTable("testimonials", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const contactFAQs = pgTable("contact_faqs", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  question: text("question").notNull(),
+  answer: text("answer").notNull(),
+  order: integer("order").default(0).notNull(),
+  active: boolean("active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const contactInfo = pgTable("contact_info", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  title: text("title").notNull(),
+  subtitle: text("subtitle").notNull(),
+  description: text("description").notNull(),
+  phone: text("phone"),
+  email: text("email"),
+  address: text("address"),
+  hours: text("hours"),
+  active: boolean("active").default(true).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
+export const socialMediaLinks = pgTable("social_media_links", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  platform: text("platform").notNull(), // instagram, facebook, tiktok
+  url: text("url").notNull(),
+  icon: text("icon").notNull(), // icon name for display
+  active: boolean("active").default(true).notNull(),
+  order: integer("order").default(0).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 // Insert schemas
 export const insertServiceSchema = createInsertSchema(services).omit({
   id: true,
@@ -132,6 +164,21 @@ export const insertTestimonialSchema = createInsertSchema(testimonials).omit({
   createdAt: true,
 });
 
+export const insertContactFAQSchema = createInsertSchema(contactFAQs).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertContactInfoSchema = createInsertSchema(contactInfo).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertSocialMediaLinkSchema = createInsertSchema(socialMediaLinks).omit({
+  id: true,
+  createdAt: true,
+});
+
 // Types
 export type Service = typeof services.$inferSelect;
 export type InsertService = z.infer<typeof insertServiceSchema>;
@@ -153,3 +200,12 @@ export type InsertPromotionalBanner = z.infer<typeof insertPromotionalBannerSche
 
 export type Testimonial = typeof testimonials.$inferSelect;
 export type InsertTestimonial = z.infer<typeof insertTestimonialSchema>;
+
+export type ContactFAQ = typeof contactFAQs.$inferSelect;
+export type InsertContactFAQ = z.infer<typeof insertContactFAQSchema>;
+
+export type ContactInfo = typeof contactInfo.$inferSelect;
+export type InsertContactInfo = z.infer<typeof insertContactInfoSchema>;
+
+export type SocialMediaLink = typeof socialMediaLinks.$inferSelect;
+export type InsertSocialMediaLink = z.infer<typeof insertSocialMediaLinkSchema>;

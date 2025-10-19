@@ -47,6 +47,7 @@ import {
   User,
   ChevronUp,
   Quote,
+  Phone,
 } from "lucide-react";
 
 // Import actual admin components
@@ -56,6 +57,7 @@ import AdminPortfolio from "./admin/AdminPortfolio";
 import AdminAppointments from "./admin/AdminAppointments";
 import AdminMessages from "./admin/AdminMessages";
 import AdminTestimonials from "./admin/AdminTestimonials";
+import AdminContact from "./admin/AdminContact";
 import AdminProfile from "./admin/AdminProfile";
 import AdminSettings from "./admin/AdminSettings";
 
@@ -89,6 +91,11 @@ const menuItems = [
     title: "Testimonials",
     url: "/admin/dashboard/testimonials",
     icon: Quote,
+  },
+  {
+    title: "Contact",
+    url: "/admin/dashboard/contact",
+    icon: Phone,
   },
 ];
 
@@ -290,6 +297,7 @@ export default function AdminDashboard() {
               <Route path="/admin/dashboard/appointments" component={AdminAppointments} />
               <Route path="/admin/dashboard/messages" component={AdminMessages} />
               <Route path="/admin/dashboard/testimonials" component={AdminTestimonials} />
+              <Route path="/admin/dashboard/contact" component={AdminContact} />
               <Route path="/admin/dashboard/profile" component={AdminProfile} />
               <Route path="/admin/dashboard/settings" component={AdminSettings} />
               <Route>

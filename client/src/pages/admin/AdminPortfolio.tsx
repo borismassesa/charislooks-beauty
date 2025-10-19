@@ -14,8 +14,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Checkbox } from "@/components/ui/checkbox";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
-import { Edit, Plus, Trash2, Star, Upload } from "lucide-react";
+import { Edit, Plus, Trash2, Star, Upload, CheckSquare, Square } from "lucide-react";
 import { z } from "zod";
 import { ObjectUploader } from "@/components/ObjectUploader";
 import type { UploadResult } from "@uppy/core";
@@ -25,6 +27,8 @@ type PortfolioFormData = z.infer<typeof insertPortfolioItemSchema>;
 export default function AdminPortfolio() {
   const [selectedItem, setSelectedItem] = useState<PortfolioItem | undefined>();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
   const { toast } = useToast();
   
   const { data: portfolioItems, isLoading } = useQuery<PortfolioItem[]>({
@@ -38,6 +42,9 @@ export default function AdminPortfolio() {
       description: selectedItem.description,
       category: selectedItem.category,
       imageUrl: selectedItem.imageUrl,
+      beforeImageUrl: selectedItem.beforeImageUrl || "",
+      afterImageUrl: selectedItem.afterImageUrl || "",
+      videoUrl: selectedItem.videoUrl || "",
       tags: selectedItem.tags,
       featured: selectedItem.featured
     } : {
@@ -45,6 +52,9 @@ export default function AdminPortfolio() {
       description: "",
       category: "",
       imageUrl: "",
+      beforeImageUrl: "",
+      afterImageUrl: "",
+      videoUrl: "",
       tags: [],
       featured: false
     }
@@ -102,6 +112,43 @@ export default function AdminPortfolio() {
     }
   });
 
+  const bulkDeleteMutation = useMutation({
+    mutationFn: async (ids: string[]) => {
+      return apiRequest("POST", "/api/admin/portfolio/bulk/delete", { ids });
+    },
+    onSuccess: (response: any) => {
+      toast({ title: response.message });
+      queryClient.invalidateQueries({ queryKey: ["/api/portfolio"] });
+      setSelectedItems([]);
+      setBulkDeleteOpen(false);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to delete portfolio items",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  });
+
+  const bulkFeatureMutation = useMutation({
+    mutationFn: async ({ ids, featured }: { ids: string[]; featured: boolean }) => {
+      return apiRequest("POST", "/api/admin/portfolio/bulk/feature", { ids, featured });
+    },
+    onSuccess: (response: any) => {
+      toast({ title: response.message });
+      queryClient.invalidateQueries({ queryKey: ["/api/portfolio"] });
+      setSelectedItems([]);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Failed to update portfolio items",
+        description: error.message,
+        variant: "destructive"
+      });
+    }
+  });
+
   const handleEdit = (item: PortfolioItem) => {
     setSelectedItem(item);
     form.reset({
@@ -109,6 +156,9 @@ export default function AdminPortfolio() {
       description: item.description,
       category: item.category,
       imageUrl: item.imageUrl,
+      beforeImageUrl: item.beforeImageUrl || "",
+      afterImageUrl: item.afterImageUrl || "",
+      videoUrl: item.videoUrl || "",
       tags: item.tags,
       featured: item.featured
     });
@@ -122,6 +172,9 @@ export default function AdminPortfolio() {
       description: "",
       category: "",
       imageUrl: "",
+      beforeImageUrl: "",
+      afterImageUrl: "",
+      videoUrl: "",
       tags: [],
       featured: false
     });
@@ -150,6 +203,36 @@ export default function AdminPortfolio() {
     });
   };
 
+  const handleSelectItem = (itemId: string) => {
+    setSelectedItems(prev => 
+      prev.includes(itemId) 
+        ? prev.filter(id => id !== itemId)
+        : [...prev, itemId]
+    );
+  };
+
+  const handleSelectAll = () => {
+    if (selectedItems.length === portfolioItems?.length) {
+      setSelectedItems([]);
+    } else {
+      setSelectedItems(portfolioItems?.map(item => item.id) || []);
+    }
+  };
+
+  const handleBulkDelete = () => {
+    bulkDeleteMutation.mutate(selectedItems);
+  };
+
+  const handleBulkFeature = () => {
+    const allFeatured = selectedItems.every(id => 
+      portfolioItems?.find(item => item.id === id)?.featured
+    );
+    bulkFeatureMutation.mutate({ 
+      ids: selectedItems, 
+      featured: !allFeatured 
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -159,12 +242,69 @@ export default function AdminPortfolio() {
             Manage your portfolio showcase items
           </p>
         </div>
-        <Button onClick={handleAdd} data-testid="button-add-portfolio">
-          <Plus className="w-4 h-4 mr-2" />
-          Add Portfolio Item
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={handleAdd} data-testid="button-add-portfolio">
+            <Plus className="w-4 h-4 mr-2" />
+            Add Portfolio Item
+          </Button>
+        </div>
       </div>
+
+      {/* Bulk Operations */}
+      {selectedItems.length > 0 && (
+        <div className="bg-muted/50 border rounded-lg p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">
+                {selectedItems.length} item{selectedItems.length > 1 ? 's' : ''} selected
+              </span>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleBulkFeature}
+                disabled={bulkFeatureMutation.isPending}
+              >
+                <Star className="w-4 h-4 mr-2" />
+                {selectedItems.every(id => portfolioItems?.find(item => item.id === id)?.featured) ? 'Unfeature' : 'Feature'}
+              </Button>
+              <Button
+                variant="destructive"
+                size="sm"
+                onClick={() => setBulkDeleteOpen(true)}
+                disabled={bulkDeleteMutation.isPending}
+              >
+                <Trash2 className="w-4 h-4 mr-2" />
+                Delete Selected
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
       
+      {/* Select All Header */}
+      {portfolioItems && portfolioItems.length > 0 && (
+        <div className="flex items-center gap-2 mb-4">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleSelectAll}
+            className="flex items-center gap-2"
+          >
+            {selectedItems.length === portfolioItems.length ? (
+              <CheckSquare className="w-4 h-4" />
+            ) : (
+              <Square className="w-4 h-4" />
+            )}
+            {selectedItems.length === portfolioItems.length ? 'Deselect All' : 'Select All'}
+          </Button>
+          <span className="text-sm text-muted-foreground">
+            {portfolioItems.length} total items
+          </span>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {isLoading ? (
           <>
@@ -195,10 +335,19 @@ export default function AdminPortfolio() {
           </>
         ) : (
           portfolioItems?.map((item) => (
-          <Card key={item.id} data-testid={`card-portfolio-${item.id}`}>
+          <Card key={item.id} data-testid={`card-portfolio-${item.id}`} className="relative">
+            {/* Selection Checkbox */}
+            <div className="absolute top-3 left-3 z-10">
+              <Checkbox
+                checked={selectedItems.includes(item.id)}
+                onCheckedChange={() => handleSelectItem(item.id)}
+                data-testid={`checkbox-portfolio-${item.id}`}
+              />
+            </div>
+
             <CardHeader className="pb-3">
               <div className="flex justify-between items-start">
-                <CardTitle className="text-lg">{item.title}</CardTitle>
+                <CardTitle className="text-lg pr-8">{item.title}</CardTitle>
                 <div className="flex gap-1">
                   <Button
                     variant="ghost"
@@ -229,21 +378,58 @@ export default function AdminPortfolio() {
               <CardDescription>{item.category}</CardDescription>
             </CardHeader>
             <CardContent>
-              {item.imageUrl && (
-                <div className="mb-3 aspect-video bg-muted rounded-md overflow-hidden">
+              {/* Media Preview */}
+              <div className="mb-3 aspect-video bg-muted rounded-md overflow-hidden relative">
+                {item.beforeImageUrl && item.afterImageUrl ? (
+                  <div className="w-full h-full bg-gradient-to-r from-blue-100 to-purple-100 flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="text-2xl mb-2">🔄</div>
+                      <div className="text-xs text-muted-foreground">Before/After</div>
+                    </div>
+                  </div>
+                ) : item.videoUrl ? (
+                  <div className="w-full h-full bg-gradient-to-r from-red-100 to-pink-100 flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="text-2xl mb-2">🎥</div>
+                      <div className="text-xs text-muted-foreground">Video</div>
+                    </div>
+                  </div>
+                ) : item.imageUrl ? (
                   <img 
                     src={item.imageUrl} 
                     alt={item.title}
                     className="w-full h-full object-cover"
                   />
+                ) : (
+                  <div className="w-full h-full bg-muted flex items-center justify-center">
+                    <div className="text-center">
+                      <div className="text-2xl mb-2">📷</div>
+                      <div className="text-xs text-muted-foreground">No Image</div>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Media Type Badge */}
+                <div className="absolute top-2 left-2">
+                  {item.beforeImageUrl && item.afterImageUrl ? (
+                    <span className="text-xs px-2 py-1 bg-blue-500 text-white rounded-full">Before/After</span>
+                  ) : item.videoUrl ? (
+                    <span className="text-xs px-2 py-1 bg-red-500 text-white rounded-full">Video</span>
+                  ) : (
+                    <span className="text-xs px-2 py-1 bg-gray-500 text-white rounded-full">Image</span>
+                  )}
                 </div>
-              )}
-              <p className="text-sm text-muted-foreground mb-3">
+              </div>
+
+              {/* Description */}
+              <p className="text-sm text-muted-foreground mb-3 line-clamp-2">
                 {item.description}
               </p>
+
+              {/* Tags */}
               {item.tags && item.tags.length > 0 && (
-                <div className="flex flex-wrap gap-1">
-                  {item.tags.map((tag, index) => (
+                <div className="flex flex-wrap gap-1 mb-2">
+                  {item.tags.slice(0, 2).map((tag, index) => (
                     <span 
                       key={index}
                       className="text-xs px-2 py-1 bg-secondary text-secondary-foreground rounded-md"
@@ -251,8 +437,29 @@ export default function AdminPortfolio() {
                       {tag}
                     </span>
                   ))}
+                  {item.tags.length > 2 && (
+                    <span className="text-xs px-2 py-1 bg-muted text-muted-foreground rounded-md">
+                      +{item.tags.length - 2}
+                    </span>
+                  )}
                 </div>
               )}
+
+              {/* Additional Info */}
+              <div className="text-xs text-muted-foreground space-y-1">
+                {item.beforeImageUrl && item.afterImageUrl && (
+                  <div className="flex items-center gap-1">
+                    <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+                    Before/After transformation
+                  </div>
+                )}
+                {item.videoUrl && (
+                  <div className="flex items-center gap-1">
+                    <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                    Video content available
+                  </div>
+                )}
+              </div>
             </CardContent>
           </Card>
           ))
@@ -316,11 +523,11 @@ export default function AdminPortfolio() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="bridal">Bridal</SelectItem>
-                        <SelectItem value="event">Event</SelectItem>
-                        <SelectItem value="editorial">Editorial</SelectItem>
-                        <SelectItem value="natural">Natural</SelectItem>
-                        <SelectItem value="glam">Glam</SelectItem>
+                        <SelectItem value="Bridal">Bridal</SelectItem>
+                        <SelectItem value="Hair Styling">Hair Styling</SelectItem>
+                        <SelectItem value="Evening">Evening</SelectItem>
+                        <SelectItem value="Special Event">Special Event</SelectItem>
+                        <SelectItem value="Editorial">Editorial</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -387,6 +594,146 @@ export default function AdminPortfolio() {
                   </FormItem>
                 )}
               />
+
+              {/* Before Image Upload */}
+              <FormField
+                control={form.control}
+                name="beforeImageUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Before Image (Optional)</FormLabel>
+                    <FormControl>
+                      <div className="space-y-2">
+                        {field.value && (
+                          <div className="aspect-video bg-muted rounded-md overflow-hidden">
+                            <img 
+                              src={field.value} 
+                              alt="Before image preview"
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        )}
+                        <ObjectUploader
+                          maxNumberOfFiles={1}
+                          maxFileSize={10485760}
+                          buttonTestId="button-upload-before-image"
+                          onGetUploadParameters={async () => {
+                            const response: any = await apiRequest("POST", "/api/admin/portfolio/upload");
+                            return {
+                              method: "PUT" as const,
+                              url: response.uploadURL,
+                            };
+                          }}
+                          onComplete={async (result) => {
+                            if (result.successful && result.successful.length > 0) {
+                              const uploadURL = result.successful[0].uploadURL;
+                              field.onChange(uploadURL);
+                              toast({ title: "Before image uploaded successfully" });
+                            }
+                          }}
+                        >
+                          <div className="flex items-center gap-2">
+                            <Upload className="w-4 h-4" />
+                            <span>Upload Before Image</span>
+                          </div>
+                        </ObjectUploader>
+                        {field.value && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => field.onChange("")}
+                            className="w-full"
+                          >
+                            Remove Before Image
+                          </Button>
+                        )}
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* After Image Upload */}
+              <FormField
+                control={form.control}
+                name="afterImageUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>After Image (Optional)</FormLabel>
+                    <FormControl>
+                      <div className="space-y-2">
+                        {field.value && (
+                          <div className="aspect-video bg-muted rounded-md overflow-hidden">
+                            <img 
+                              src={field.value} 
+                              alt="After image preview"
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        )}
+                        <ObjectUploader
+                          maxNumberOfFiles={1}
+                          maxFileSize={10485760}
+                          buttonTestId="button-upload-after-image"
+                          onGetUploadParameters={async () => {
+                            const response: any = await apiRequest("POST", "/api/admin/portfolio/upload");
+                            return {
+                              method: "PUT" as const,
+                              url: response.uploadURL,
+                            };
+                          }}
+                          onComplete={async (result) => {
+                            if (result.successful && result.successful.length > 0) {
+                              const uploadURL = result.successful[0].uploadURL;
+                              field.onChange(uploadURL);
+                              toast({ title: "After image uploaded successfully" });
+                            }
+                          }}
+                        >
+                          <div className="flex items-center gap-2">
+                            <Upload className="w-4 h-4" />
+                            <span>Upload After Image</span>
+                          </div>
+                        </ObjectUploader>
+                        {field.value && (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={() => field.onChange("")}
+                            className="w-full"
+                          >
+                            Remove After Image
+                          </Button>
+                        )}
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Video URL */}
+              <FormField
+                control={form.control}
+                name="videoUrl"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Video URL (Optional)</FormLabel>
+                    <FormControl>
+                      <Input 
+                        {...field}
+                        value={field.value || ''}
+                        placeholder="https://example.com/video.mp4" 
+                        data-testid="input-portfolio-video-url" 
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               
               <FormField
                 control={form.control}
@@ -445,6 +792,28 @@ export default function AdminPortfolio() {
           </Form>
         </DialogContent>
       </Dialog>
+
+      {/* Bulk Delete Confirmation Dialog */}
+      <AlertDialog open={bulkDeleteOpen} onOpenChange={setBulkDeleteOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Selected Items</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete {selectedItems.length} portfolio item{selectedItems.length > 1 ? 's' : ''}? 
+              This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleBulkDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Delete {selectedItems.length} Item{selectedItems.length > 1 ? 's' : ''}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

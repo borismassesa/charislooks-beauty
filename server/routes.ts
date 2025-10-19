@@ -9,7 +9,10 @@ import {
   insertServiceSchema,
   insertPortfolioItemSchema,
   insertPromotionalBannerSchema,
-  insertTestimonialSchema
+  insertTestimonialSchema,
+  insertContactFAQSchema,
+  insertContactInfoSchema,
+  insertSocialMediaLinkSchema
 } from "@shared/schema";
 import {
   ObjectStorageService,
@@ -501,6 +504,59 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(500).json({ error: "Failed to delete portfolio item" });
     }
   });
+
+  // Bulk operations for portfolio items
+  app.post("/api/admin/portfolio/bulk/delete", isAuthenticated, async (req, res) => {
+    try {
+      const { ids } = req.body;
+      if (!ids || !Array.isArray(ids)) {
+        return res.status(400).json({ error: "ids array is required" });
+      }
+
+      const results = await Promise.allSettled(
+        ids.map(id => storage.deletePortfolioItem(id))
+      );
+
+      const successful = results.filter(result => result.status === 'fulfilled').length;
+      const failed = results.filter(result => result.status === 'rejected').length;
+
+      res.json({ 
+        message: `${successful} items deleted successfully`,
+        successful,
+        failed,
+        total: ids.length
+      });
+    } catch (error) {
+      console.error("Error bulk deleting portfolio items:", error);
+      res.status(500).json({ error: "Failed to bulk delete portfolio items" });
+    }
+  });
+
+  app.post("/api/admin/portfolio/bulk/feature", isAuthenticated, async (req, res) => {
+    try {
+      const { ids, featured } = req.body;
+      if (!ids || !Array.isArray(ids) || typeof featured !== 'boolean') {
+        return res.status(400).json({ error: "ids array and featured boolean are required" });
+      }
+
+      const results = await Promise.allSettled(
+        ids.map(id => storage.updatePortfolioItem(id, { featured }))
+      );
+
+      const successful = results.filter(result => result.status === 'fulfilled').length;
+      const failed = results.filter(result => result.status === 'rejected').length;
+
+      res.json({ 
+        message: `${successful} items ${featured ? 'featured' : 'unfeatured'} successfully`,
+        successful,
+        failed,
+        total: ids.length
+      });
+    } catch (error) {
+      console.error("Error bulk updating portfolio items:", error);
+      res.status(500).json({ error: "Failed to bulk update portfolio items" });
+    }
+  });
   
   // Admin-protected route to update contact message status
   app.patch("/api/admin/contact/:id", isAuthenticated, async (req, res) => {
@@ -700,6 +756,202 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
     } catch (error) {
       console.error("Error setting portfolio image:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Contact Page CRUD API Endpoints
+  
+  // Contact FAQs CRUD
+  app.get("/api/admin/contact/faqs", isAuthenticated, async (req, res) => {
+    try {
+      const faqs = await storage.getContactFAQs();
+      res.json(faqs);
+    } catch (error) {
+      console.error("Error fetching contact FAQs:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.post("/api/admin/contact/faqs", isAuthenticated, async (req, res) => {
+    try {
+      const validatedData = insertContactFAQSchema.parse(req.body);
+      const faq = await storage.createContactFAQ(validatedData);
+      res.status(201).json(faq);
+    } catch (error) {
+      console.error("Error creating contact FAQ:", error);
+      if (error instanceof Error && error.name === 'ZodError') {
+        res.status(400).json({ error: "Invalid data", details: error.message });
+      } else {
+        res.status(500).json({ error: "Internal server error" });
+      }
+    }
+  });
+
+  app.put("/api/admin/contact/faqs/:id", isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const validatedData = insertContactFAQSchema.parse(req.body);
+      const faq = await storage.updateContactFAQ(id, validatedData);
+      if (!faq) {
+        return res.status(404).json({ error: "FAQ not found" });
+      }
+      res.json(faq);
+    } catch (error) {
+      console.error("Error updating contact FAQ:", error);
+      if (error instanceof Error && error.name === 'ZodError') {
+        res.status(400).json({ error: "Invalid data", details: error.message });
+      } else {
+        res.status(500).json({ error: "Internal server error" });
+      }
+    }
+  });
+
+  app.delete("/api/admin/contact/faqs/:id", isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const success = await storage.deleteContactFAQ(id);
+      if (!success) {
+        return res.status(404).json({ error: "FAQ not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting contact FAQ:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Contact Info CRUD
+  app.get("/api/admin/contact/info", isAuthenticated, async (req, res) => {
+    try {
+      const info = await storage.getContactInfo();
+      res.json(info);
+    } catch (error) {
+      console.error("Error fetching contact info:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.post("/api/admin/contact/info", isAuthenticated, async (req, res) => {
+    try {
+      const validatedData = insertContactInfoSchema.parse(req.body);
+      const info = await storage.createContactInfo(validatedData);
+      res.status(201).json(info);
+    } catch (error) {
+      console.error("Error creating contact info:", error);
+      if (error instanceof Error && error.name === 'ZodError') {
+        res.status(400).json({ error: "Invalid data", details: error.message });
+      } else {
+        res.status(500).json({ error: "Internal server error" });
+      }
+    }
+  });
+
+  app.put("/api/admin/contact/info/:id", isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const validatedData = insertContactInfoSchema.parse(req.body);
+      const info = await storage.updateContactInfo(id, validatedData);
+      if (!info) {
+        return res.status(404).json({ error: "Contact info not found" });
+      }
+      res.json(info);
+    } catch (error) {
+      console.error("Error updating contact info:", error);
+      if (error instanceof Error && error.name === 'ZodError') {
+        res.status(400).json({ error: "Invalid data", details: error.message });
+      } else {
+        res.status(500).json({ error: "Internal server error" });
+      }
+    }
+  });
+
+  // Social Media Links CRUD
+  app.get("/api/admin/contact/social-media", isAuthenticated, async (req, res) => {
+    try {
+      const links = await storage.getSocialMediaLinks();
+      res.json(links);
+    } catch (error) {
+      console.error("Error fetching social media links:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.post("/api/admin/contact/social-media", isAuthenticated, async (req, res) => {
+    try {
+      const validatedData = insertSocialMediaLinkSchema.parse(req.body);
+      const link = await storage.createSocialMediaLink(validatedData);
+      res.status(201).json(link);
+    } catch (error) {
+      console.error("Error creating social media link:", error);
+      if (error instanceof Error && error.name === 'ZodError') {
+        res.status(400).json({ error: "Invalid data", details: error.message });
+      } else {
+        res.status(500).json({ error: "Internal server error" });
+      }
+    }
+  });
+
+  app.put("/api/admin/contact/social-media/:id", isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const validatedData = insertSocialMediaLinkSchema.parse(req.body);
+      const link = await storage.updateSocialMediaLink(id, validatedData);
+      if (!link) {
+        return res.status(404).json({ error: "Social media link not found" });
+      }
+      res.json(link);
+    } catch (error) {
+      console.error("Error updating social media link:", error);
+      if (error instanceof Error && error.name === 'ZodError') {
+        res.status(400).json({ error: "Invalid data", details: error.message });
+      } else {
+        res.status(500).json({ error: "Internal server error" });
+      }
+    }
+  });
+
+  app.delete("/api/admin/contact/social-media/:id", isAuthenticated, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const success = await storage.deleteSocialMediaLink(id);
+      if (!success) {
+        return res.status(404).json({ error: "Social media link not found" });
+      }
+      res.status(204).send();
+    } catch (error) {
+      console.error("Error deleting social media link:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Public API endpoints (no auth required)
+  app.get("/api/contact/faqs", async (req, res) => {
+    try {
+      const faqs = await storage.getActiveContactFAQs();
+      res.json(faqs);
+    } catch (error) {
+      console.error("Error fetching active contact FAQs:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.get("/api/contact/info", async (req, res) => {
+    try {
+      const info = await storage.getActiveContactInfo();
+      res.json(info);
+    } catch (error) {
+      console.error("Error fetching active contact info:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  app.get("/api/contact/social-media", async (req, res) => {
+    try {
+      const links = await storage.getActiveSocialMediaLinks();
+      res.json(links);
+    } catch (error) {
+      console.error("Error fetching active social media links:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   });

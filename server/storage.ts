@@ -12,7 +12,13 @@ import {
   type PromotionalBanner,
   type InsertPromotionalBanner,
   type Testimonial,
-  type InsertTestimonial
+  type InsertTestimonial,
+  type ContactFAQ,
+  type InsertContactFAQ,
+  type ContactInfo,
+  type InsertContactInfo,
+  type SocialMediaLink,
+  type InsertSocialMediaLink
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -85,6 +91,31 @@ export interface IStorage {
   createTestimonial(testimonial: InsertTestimonial): Promise<Testimonial>;
   updateTestimonial(id: string, testimonial: Partial<InsertTestimonial>): Promise<Testimonial | undefined>;
   deleteTestimonial(id: string): Promise<boolean>;
+  
+  // Contact Page Management
+  // Contact FAQs
+  getContactFAQs(): Promise<ContactFAQ[]>;
+  getActiveContactFAQs(): Promise<ContactFAQ[]>;
+  getContactFAQ(id: string): Promise<ContactFAQ | undefined>;
+  createContactFAQ(faq: InsertContactFAQ): Promise<ContactFAQ>;
+  updateContactFAQ(id: string, faq: Partial<InsertContactFAQ>): Promise<ContactFAQ | undefined>;
+  deleteContactFAQ(id: string): Promise<boolean>;
+  
+  // Contact Info
+  getContactInfo(): Promise<ContactInfo[]>;
+  getActiveContactInfo(): Promise<ContactInfo | undefined>;
+  getContactInfoById(id: string): Promise<ContactInfo | undefined>;
+  createContactInfo(info: InsertContactInfo): Promise<ContactInfo>;
+  updateContactInfo(id: string, info: Partial<InsertContactInfo>): Promise<ContactInfo | undefined>;
+  deleteContactInfo(id: string): Promise<boolean>;
+  
+  // Social Media Links
+  getSocialMediaLinks(): Promise<SocialMediaLink[]>;
+  getActiveSocialMediaLinks(): Promise<SocialMediaLink[]>;
+  getSocialMediaLink(id: string): Promise<SocialMediaLink | undefined>;
+  createSocialMediaLink(link: InsertSocialMediaLink): Promise<SocialMediaLink>;
+  updateSocialMediaLink(id: string, link: Partial<InsertSocialMediaLink>): Promise<SocialMediaLink | undefined>;
+  deleteSocialMediaLink(id: string): Promise<boolean>;
 }
 
 export class MemStorage implements IStorage {
@@ -94,6 +125,9 @@ export class MemStorage implements IStorage {
   private contactMessages: Map<string, ContactMessage>;
   private adminUsers: Map<string, AdminUser>;
   private testimonials: Map<string, Testimonial>;
+  private contactFAQs: Map<string, ContactFAQ>;
+  private contactInfo: Map<string, ContactInfo>;
+  private socialMediaLinks: Map<string, SocialMediaLink>;
 
   constructor() {
     this.services = new Map();
@@ -102,6 +136,9 @@ export class MemStorage implements IStorage {
     this.contactMessages = new Map();
     this.adminUsers = new Map();
     this.testimonials = new Map();
+    this.contactFAQs = new Map();
+    this.contactInfo = new Map();
+    this.socialMediaLinks = new Map();
     
     // Initialize with default services
     this.initializeDefaultData();
@@ -564,6 +601,7 @@ export class MemStorage implements IStorage {
     const testimonial: Testimonial = {
       id: randomUUID(),
       ...insertTestimonial,
+      avatarUrl: insertTestimonial.avatarUrl ?? null,
       active: insertTestimonial.active ?? true,
       featured: insertTestimonial.featured ?? false,
       createdAt: new Date(),
@@ -582,6 +620,129 @@ export class MemStorage implements IStorage {
   
   async deleteTestimonial(id: string): Promise<boolean> {
     return this.testimonials.delete(id);
+  }
+  
+  // Contact Page Management Methods
+  
+  // Contact FAQs
+  async getContactFAQs(): Promise<ContactFAQ[]> {
+    return Array.from(this.contactFAQs.values()).sort((a, b) => a.order - b.order);
+  }
+  
+  async getActiveContactFAQs(): Promise<ContactFAQ[]> {
+    return Array.from(this.contactFAQs.values())
+      .filter(faq => faq.active)
+      .sort((a, b) => a.order - b.order);
+  }
+  
+  async getContactFAQ(id: string): Promise<ContactFAQ | undefined> {
+    return this.contactFAQs.get(id);
+  }
+  
+  async createContactFAQ(insertFAQ: InsertContactFAQ): Promise<ContactFAQ> {
+    const faq: ContactFAQ = {
+      id: randomUUID(),
+      ...insertFAQ,
+      order: insertFAQ.order ?? 0,
+      active: insertFAQ.active ?? true,
+      createdAt: new Date(),
+    };
+    this.contactFAQs.set(faq.id, faq);
+    return faq;
+  }
+  
+  async updateContactFAQ(id: string, faqUpdate: Partial<InsertContactFAQ>): Promise<ContactFAQ | undefined> {
+    const faq = this.contactFAQs.get(id);
+    if (!faq) return undefined;
+    
+    const updated = { ...faq, ...faqUpdate };
+    this.contactFAQs.set(id, updated);
+    return updated;
+  }
+  
+  async deleteContactFAQ(id: string): Promise<boolean> {
+    return this.contactFAQs.delete(id);
+  }
+  
+  // Contact Info
+  async getContactInfo(): Promise<ContactInfo[]> {
+    return Array.from(this.contactInfo.values());
+  }
+  
+  async getActiveContactInfo(): Promise<ContactInfo | undefined> {
+    return Array.from(this.contactInfo.values()).find(info => info.active);
+  }
+  
+  async getContactInfoById(id: string): Promise<ContactInfo | undefined> {
+    return this.contactInfo.get(id);
+  }
+  
+  async createContactInfo(insertInfo: InsertContactInfo): Promise<ContactInfo> {
+    const info: ContactInfo = {
+      id: randomUUID(),
+      ...insertInfo,
+      address: insertInfo.address ?? null,
+      phone: insertInfo.phone ?? null,
+      email: insertInfo.email ?? null,
+      hours: insertInfo.hours ?? null,
+      active: insertInfo.active ?? true,
+      createdAt: new Date(),
+    };
+    this.contactInfo.set(info.id, info);
+    return info;
+  }
+  
+  async updateContactInfo(id: string, infoUpdate: Partial<InsertContactInfo>): Promise<ContactInfo | undefined> {
+    const info = this.contactInfo.get(id);
+    if (!info) return undefined;
+    
+    const updated = { ...info, ...infoUpdate };
+    this.contactInfo.set(id, updated);
+    return updated;
+  }
+  
+  async deleteContactInfo(id: string): Promise<boolean> {
+    return this.contactInfo.delete(id);
+  }
+  
+  // Social Media Links
+  async getSocialMediaLinks(): Promise<SocialMediaLink[]> {
+    return Array.from(this.socialMediaLinks.values()).sort((a, b) => a.order - b.order);
+  }
+  
+  async getActiveSocialMediaLinks(): Promise<SocialMediaLink[]> {
+    return Array.from(this.socialMediaLinks.values())
+      .filter(link => link.active)
+      .sort((a, b) => a.order - b.order);
+  }
+  
+  async getSocialMediaLink(id: string): Promise<SocialMediaLink | undefined> {
+    return this.socialMediaLinks.get(id);
+  }
+  
+  async createSocialMediaLink(insertLink: InsertSocialMediaLink): Promise<SocialMediaLink> {
+    const link: SocialMediaLink = {
+      id: randomUUID(),
+      ...insertLink,
+      order: insertLink.order ?? 0,
+      active: insertLink.active ?? true,
+      createdAt: new Date(),
+    };
+    this.socialMediaLinks.set(link.id, link);
+    return link;
+  }
+  
+  async updateSocialMediaLink(id: string, linkUpdate: Partial<InsertSocialMediaLink>): Promise<SocialMediaLink | undefined> {
+    const link = this.socialMediaLinks.get(id);
+    if (!link) return undefined;
+    
+    const updated = { ...link, ...linkUpdate };
+    this.socialMediaLinks.set(id, updated);
+    return updated;
+  }
+  
+  async deleteSocialMediaLink(id: string): Promise<boolean> {
+    return this.socialMediaLinks.delete(id);
   }
 }
 
