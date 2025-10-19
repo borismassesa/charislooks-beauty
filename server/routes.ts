@@ -58,9 +58,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Set session
       (req.session as any).adminId = admin.id;
+      console.log('Session set:', req.sessionID, 'adminId:', admin.id);
       res.json({ 
         message: "Login successful",
-        admin: { id: admin.id, username: admin.username, email: admin.email }
+        admin: { id: admin.id, username: admin.username, email: admin.email },
+        sessionId: req.sessionID
       });
     } catch (error) {
       console.error("Login error:", error);
@@ -79,8 +81,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   
   app.get("/api/admin/check", isAuthenticated, async (req, res) => {
     try {
+      console.log('Session check:', req.sessionID, 'adminId:', (req.session as any).adminId);
       const admin = await storage.getAdminById((req.session as any).adminId);
       if (!admin) {
+        console.log('Admin not found for session:', (req.session as any).adminId);
         return res.status(401).json({ error: "Session invalid" });
       }
       res.json({ 
@@ -88,6 +92,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         admin: { id: admin.id, username: admin.username, email: admin.email }
       });
     } catch (error) {
+      console.error('Session check error:', error);
       res.status(500).json({ error: "Failed to check authentication" });
     }
   });

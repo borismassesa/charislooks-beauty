@@ -29,14 +29,15 @@ app.use(express.urlencoded({ extended: false }));
 app.use(
   session({
     secret: process.env.SESSION_SECRET || 'your-secret-key-change-in-production',
-    resave: false,
-    saveUninitialized: false,
+    resave: true, // Force resave for Railway
+    saveUninitialized: true, // Allow uninitialized sessions
     cookie: {
       secure: false, // Railway handles HTTPS, but cookies work better with secure: false
-      httpOnly: true,
+      httpOnly: false, // Allow JavaScript access for debugging
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      sameSite: 'lax' // Better compatibility with Railway
-    }
+      sameSite: 'none' // Most permissive for Railway
+    },
+    name: 'charislooks.sid' // Custom session name
   })
 );
 
