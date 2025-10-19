@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import express, { type Request, Response, NextFunction } from "express";
 import session from "express-session";
+import PgSession from "connect-pg-simple";
 import cors from "cors";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
@@ -25,17 +26,24 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-// Configure session middleware
+// Configure session middleware with PostgreSQL store
+const PgSessionStore = PgSession(session);
+
 app.use(
   session({
+    store: new PgSessionStore({
+      conString: process.env.DATABASE_URL,
+      tableName: 'user_sessions', // Table name for sessions
+      createTableIfMissing: true, // Create table if it doesn't exist
+    }),
     secret: process.env.SESSION_SECRET || 'your-secret-key-change-in-production',
-    resave: true, // Force resave for Railway
-    saveUninitialized: true, // Allow uninitialized sessions
+    resave: false,
+    saveUninitialized: false,
     cookie: {
       secure: false, // Railway handles HTTPS, but cookies work better with secure: false
-      httpOnly: false, // Allow JavaScript access for debugging
+      httpOnly: true,
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
-      sameSite: 'none' // Most permissive for Railway
+      sameSite: 'lax' // Better compatibility with Railway
     },
     name: 'charislooks.sid' // Custom session name
   })
