@@ -13,6 +13,7 @@ const corsOptions = {
     ? [
         `https://${process.env.DOMAIN}`,
         `https://${process.env.WWW_DOMAIN}`,
+        'https://charislooks-production.up.railway.app', // Add Railway URL
         'http://localhost:3000' // Keep for development
       ]
     : ['http://localhost:3000', 'http://localhost:5173'],
@@ -31,9 +32,10 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      secure: process.env.NODE_ENV === 'production',
+      secure: false, // Railway handles HTTPS, but cookies work better with secure: false
       httpOnly: true,
-      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+      sameSite: 'lax' // Better compatibility with Railway
     }
   })
 );
